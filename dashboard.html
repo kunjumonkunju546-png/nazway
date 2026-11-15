@@ -203,6 +203,104 @@ body {
   color:white;
   border-top:7px solid var(--gold);
 }
+  /* PREMIUM MINIMAL FLIGHT BOOKING */
+
+.flight-form {
+  background:#fff;
+  color:#263445;
+}
+
+.flight-form label {
+  display:block;
+  font-size:12px;
+  font-weight:700;
+  color:#475569;
+  margin-bottom:6px;
+}
+
+.flight-form input,
+.flight-form select,
+.flight-form textarea {
+  width:100%;
+  min-height:43px;
+  border:1px solid #dbe1e8;
+  border-radius:9px;
+  padding:10px 12px;
+  background:#fff;
+  color:#1e293b;
+  font-size:14px;
+  outline:none;
+}
+
+.flight-form input:focus,
+.flight-form select:focus,
+.flight-form textarea:focus {
+  border-color:#475569;
+  box-shadow:0 0 0 2px rgba(71,85,105,.10);
+}
+
+.flight-form textarea {
+  min-height:75px;
+  resize:vertical;
+}
+
+.flight-form .form-group {
+  margin-bottom:14px;
+}
+
+.flight-form .trip-option {
+  flex:1;
+  border:1px solid #cbd5e1;
+  border-radius:9px;
+  padding:10px;
+  text-align:center;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+  background:#fff;
+  color:#475569;
+}
+
+.flight-form .trip-option.active {
+  background:#334155;
+  color:#fff;
+  border-color:#334155;
+}
+
+.flight-form .submit-flight {
+  width:100%;
+  padding:13px;
+  border-radius:10px;
+  background:#334155;
+  color:#fff;
+  font-weight:700;
+  font-size:14px;
+}
+
+.flight-form .submit-flight:disabled {
+  opacity:.6;
+  cursor:not-allowed;
+}
+
+.modal-panel {
+  max-width:600px;
+  max-height:90vh;
+}
+
+@media(max-width:640px) {
+  .modal-backdrop {
+    padding:8px;
+  }
+
+  .modal-panel {
+    border-radius:14px;
+    max-height:94vh;
+  }
+
+  .modal-body {
+    padding:15px;
+  }
+}
 
 @media(max-width:640px) {
   .hero {
@@ -505,9 +603,10 @@ import {
 import {
   getFirestore,
   doc,
-  getDoc
+  getDoc,
+  collection,
+  addDoc
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
 
 const firebaseConfig = {
   apiKey: "AIzaSyCCrmQBOFUNoUf6xv1q48MYhbOHL22JJig",
@@ -605,7 +704,262 @@ function detail(label, value) {
   `;
 }
 
+/* FLIGHT BOOKING REQUEST FORM */
 
+function openFlightRequest() {
+
+  const today = new Date();
+  const localToday = [
+    today.getFullYear(),
+    String(today.getMonth() + 1).padStart(2, "0"),
+    String(today.getDate()).padStart(2, "0")
+  ].join("-");
+
+  openModal("Flight Booking Request", `
+    <form id="flightBookingForm" class="flight-form">
+
+      <p class="text-sm text-slate-500 mb-4">
+        Submit your travel details to receive a flight fare enquiry.
+      </p>
+
+      <div class="form-group">
+        <label>Trip Type</label>
+        <div class="flex gap-2">
+          <button type="button" id="oneWayBtn"
+            class="trip-option active">One Way</button>
+          <button type="button" id="roundTripBtn"
+            class="trip-option">Round Trip</button>
+        </div>
+      </div>
+
+      <input type="hidden" id="tripType" value="oneway">
+
+      <div class="grid grid-cols-2 gap-3">
+        <div class="form-group">
+          <label for="flightFrom">From *</label>
+          <input id="flightFrom" type="text"
+            placeholder="Departure city" maxlength="100" required>
+        </div>
+
+        <div class="form-group">
+          <label for="flightTo">To *</label>
+          <input id="flightTo" type="text"
+            placeholder="Destination city" maxlength="100" required>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div class="form-group">
+          <label for="departureDate">Departure Date *</label>
+          <input id="departureDate" type="date"
+            min="${localToday}" required>
+        </div>
+
+        <div class="form-group" id="returnDateGroup" style="display:none">
+          <label for="returnDate">Return Date *</label>
+          <input id="returnDate" type="date" min="${localToday}">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Passengers</label>
+
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label for="adults" class="font-medium">Adults</label>
+            <input id="adults" type="number" min="1"
+              max="9" value="1" required>
+          </div>
+
+          <div>
+            <label for="children" class="font-medium">Children</label>
+            <input id="children" type="number" min="0"
+              max="8" value="0" required>
+          </div>
+
+          <div>
+            <label for="infants" class="font-medium">Infants</label>
+            <input id="infants" type="number" min="0"
+              max="8" value="0" required>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="requirements">
+          Additional Requirements (Optional)
+        </label>
+        <textarea id="requirements"
+          maxlength="1000"
+          placeholder="Flexible dates, baggage, airline preference, budget or other requests..."></textarea>
+      </div>
+
+      <p class="text-xs text-slate-500 mb-4">
+        This is a fare enquiry request only. Your ticket is not confirmed
+        until the booking is separately confirmed by NAZYAN TRAVELS.
+      </p>
+
+      <button type="submit" id="submitFlightBtn"
+        class="submit-flight">
+        Submit Booking Request
+      </button>
+
+      <p id="flightFormMessage"
+        class="text-sm mt-3 text-center"
+        role="status"></p>
+
+    </form>
+  `);
+
+  const oneWayBtn = document.getElementById("oneWayBtn");
+  const roundTripBtn = document.getElementById("roundTripBtn");
+  const tripTypeInput = document.getElementById("tripType");
+  const returnGroup = document.getElementById("returnDateGroup");
+  const returnInput = document.getElementById("returnDate");
+  const departureInput = document.getElementById("departureDate");
+
+  oneWayBtn.addEventListener("click", () => {
+    tripTypeInput.value = "oneway";
+    oneWayBtn.classList.add("active");
+    roundTripBtn.classList.remove("active");
+    returnGroup.style.display = "none";
+    returnInput.required = false;
+    returnInput.value = "";
+  });
+
+  roundTripBtn.addEventListener("click", () => {
+    tripTypeInput.value = "roundtrip";
+    roundTripBtn.classList.add("active");
+    oneWayBtn.classList.remove("active");
+    returnGroup.style.display = "block";
+    returnInput.required = true;
+  });
+
+  departureInput.addEventListener("change", () => {
+    returnInput.min = departureInput.value || localToday;
+
+    if(returnInput.value && returnInput.value < departureInput.value) {
+      returnInput.value = "";
+    }
+  });
+
+  document.getElementById("flightBookingForm")
+    .addEventListener("submit", async event => {
+
+      event.preventDefault();
+
+      if(!currentAgent) {
+        alert("Please login again.");
+        return;
+      }
+
+      const from = document.getElementById("flightFrom").value.trim();
+      const to = document.getElementById("flightTo").value.trim();
+      const departureDate = departureInput.value;
+      const returnDate = returnInput.value;
+      const tripType = tripTypeInput.value;
+
+      const adults = Number(document.getElementById("adults").value);
+      const children = Number(document.getElementById("children").value);
+      const infants = Number(document.getElementById("infants").value);
+      const requirements = document.getElementById("requirements").value.trim();
+
+      const message = document.getElementById("flightFormMessage");
+      const submitButton = document.getElementById("submitFlightBtn");
+
+      if(from.toLowerCase() === to.toLowerCase()) {
+        message.textContent = "From and To locations must be different.";
+        message.className = "text-sm mt-3 text-center text-red-600";
+        return;
+      }
+
+      if(tripType === "roundtrip" &&
+        (!returnDate || returnDate < departureDate)) {
+        message.textContent = "Please select a valid return date.";
+        message.className = "text-sm mt-3 text-center text-red-600";
+        return;
+      }
+
+      if(
+        !Number.isInteger(adults) ||
+        !Number.isInteger(children) ||
+        !Number.isInteger(infants) ||
+        adults < 1 || children < 0 || infants < 0 ||
+        adults > 9 || children > 8 || infants > 8 ||
+        adults + children + infants > 9
+      ) {
+        message.textContent = "Please enter valid passenger numbers. Maximum 9 passengers.";
+        message.className = "text-sm mt-3 text-center text-red-600";
+        return;
+      }
+
+      submitButton.disabled = true;
+      submitButton.textContent = "Submitting...";
+      message.textContent = "";
+
+      try {
+
+        const bookingData = {
+          agentId: currentAgent.uid,
+          agentName: currentAgent.name,
+          agentEmail: currentAgent.email,
+          service: "flight",
+          tripType: tripType,
+          from: from,
+          to: to,
+          departureDate: departureDate,
+          returnDate: tripType === "roundtrip" ? returnDate : "",
+          adults: adults,
+          children: children,
+          infants: infants,
+          requirements: requirements,
+          status: "new",
+          createdAt: new Date().toISOString()
+        };
+
+        const bookingRef = await addDoc(
+          collection(db, "flightBookings"),
+          bookingData
+        );
+
+        openModal("Request Submitted", `
+          <div class="text-center py-4">
+            <div class="text-4xl mb-3">✓</div>
+            <h3 class="text-lg font-bold text-slate-800">
+              Booking Request Received
+            </h3>
+            <p class="text-sm text-slate-500 mt-2">
+              Your flight enquiry has been submitted successfully.
+              NAZYAN TRAVELS will review your request.
+            </p>
+            <p class="text-xs text-slate-500 mt-4">
+              Request ID
+            </p>
+            <p class="text-sm font-bold text-slate-700 break-all mt-1">
+              ${safeText(bookingRef.id)}
+            </p>
+            <p class="text-xs text-slate-500 mt-4">
+              This is not a confirmed ticket.
+            </p>
+          </div>
+        `);
+
+      } catch(error) {
+
+        console.error("Flight Booking Error:", error);
+
+        message.textContent =
+          "Unable to submit your request. Please try again. If the problem continues, contact support.";
+
+        message.className = "text-sm mt-3 text-center text-red-600";
+
+        submitButton.disabled = false;
+        submitButton.textContent = "Submit Booking Request";
+      }
+
+    });
+
+}
 /* PARTNER ACCOUNT MENU */
 
 document.querySelectorAll("[data-panel]").forEach(button => {
@@ -681,10 +1035,15 @@ document.querySelectorAll("[data-service]").forEach(button => {
 
   button.addEventListener("click", () => {
 
+    if(button.dataset.service === "Flight Tickets") {
+      openFlightRequest();
+      return;
+    }
+
     openModal(
       button.dataset.service,
 
-      `<p class="text-gray-600 leading-relaxed">${button.dataset.description}</p>
+      `<p class="text-gray-600 leading-relaxed">${safeText(button.dataset.description)}</p>
        <p class="text-sm text-amber-700 font-semibold mt-4">
          Booking feature is being prepared.
        </p>`
@@ -693,7 +1052,6 @@ document.querySelectorAll("[data-service]").forEach(button => {
   });
 
 });
-
 
 /* CHECK USER LOGIN AND APPROVAL */
 
@@ -753,11 +1111,12 @@ onAuthStateChanged(auth, async user => {
     }
 
 
-    currentAgent = {
-      name: data.name || "Agent",
-      email: data.email || user.email || "Not available",
-      phone: data.phone || "Not available"
-    };
+currentAgent = {
+  uid: user.uid,
+  name: data.name || "Agent",
+  email: data.email || user.email || "Not available",
+  phone: data.phone || "Not available"
+};
 
 
     document.getElementById("agentName").textContent = currentAgent.name;
