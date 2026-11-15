@@ -608,9 +608,9 @@ import {
   addDoc,
   getDocs,
   query,
-  where
+  where,
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
 const firebaseConfig = {
   apiKey: "AIzaSyCCrmQBOFUNoUf6xv1q48MYhbOHL22JJig",
   authDomain: "nazway-7d9f4.firebaseapp.com",
@@ -1153,17 +1153,234 @@ async function openMyBookings() {
   }
 
 }
+  /* AGENT NOTIFICATIONS */
+
+async function openNotifications() {
+
+  openModal(
+    "Notifications",
+    '<p class="text-center text-gray-500 py-6">Loading notifications...</p>'
+  );
+
+  try {
+
+    const notificationQuery = query(
+      collection(db, "notifications"),
+      where("agentId", "==", currentAgent.uid)
+    );
+
+    const snapshot = await getDocs(notificationQuery);
+
+    let notifications = [];
+
+    snapshot.forEach(document => {
+
+      notifications.push({
+        id: document.id,
+        ...document.data()
+      });
+
+    });
+
+    notifications.sort((a, b) =>
+      String(b.createdAt || "").localeCompare(
+        String(a.createdAt || "")
+      )
+    );
+
+    if (notifications.length === 0) {
+
+      document.getElementById("modalBody").innerHTML = `
+        <div class="text-center py-10">
+
+          <div class="text-4xl mb-3">🔔</div>
+
+          <h3 class="font-bold text-gray-700">
+            No Notifications Yet
+          </h3>
+
+          <p class="text-sm text-gray-500 mt-2">
+            Your booking updates will appear here.
+          </p>
+
+        </div>
+      `;
+
+      return;
+    }
+
+    const unreadCount = notifications.filter(
+      item => item.isRead !== true
+    ).length;
+
+    let html = `
+      <div class="mb-5 flex justify-between items-center">
+
+        <p class="text-sm text-gray-600">
+          Total: ${notifications.length}
+        </p>
+
+        <p class="text-sm font-bold text-green-700">
+          Unread: ${unreadCount}
+        </p>
+
+      </div>
+
+      <div class="space-y-3">
+    `;
+
+    notifications.forEach(item => {
+
+      const isRead = item.isRead === true;
+
+      const statusColors = {
+        new: "bg-amber-100 text-amber-800",
+        processing: "bg-blue-100 text-blue-800",
+        confirmed: "bg-green-100 text-green-800",
+        rejected: "bg-red-100 text-red-800"
+      };
+
+      const statusColor =
+        statusColors[item.newStatus] ||
+        "bg-gray-100 text-gray-700";
+
+      const dateText = item.createdAt
+        ? new Date(item.createdAt).toLocaleString()
+        : "Date unavailable";
+
+      html += `
+
+        <div class="border rounded-xl p-4 ${
+          isRead
+            ? "bg-white border-gray-200"
+            : "bg-green-50 border-green-300"
+        }">
+
+          <div class="flex justify-between items-start gap-2">
+
+            <h3 class="font-bold text-gray-800 text-sm">
+              ${safeText(item.title)}
+            </h3>
+
+            ${
+              isRead
+                ? '<span class="text-xs text-gray-400">Read</span>'
+                : '<span class="text-xs font-bold text-green-700">NEW</span>'
+            }
+
+          </div>
+
+          <p class="text-sm text-gray-600 mt-3 leading-relaxed">
+            ${safeText(item.message)}
+          </p>
+
+          <div class="flex flex-wrap items-center gap-2 mt-4">
+
+            <span class="text-xs px-3 py-1 rounded-full ${statusColor}">
+              ${safeText(item.newStatus)}
+            </span>
+
+            <span class="text-xs text-gray-400">
+              ${safeText(dateText)}
+            </span>
+
+          </div>
+
+          ${
+            !isRead
+              ? `
+                <button
+                  type="button"
+                  data-notification-id="${safeText(item.id)}"
+                  class="mark-notification-read mt-4 bg-green-800 hover:bg-green-900 text-white px-4 py-2 rounded-lg text-xs font-bold">
+                  Mark as Read
+                </button>
+              `
+              : ""
+          }
+
+        </div>
+
+      `;
+
+    });
+
+    html += `</div>`;
+
+    document.getElementById("modalBody").innerHTML = html;
+
+    document.querySelectorAll(".mark-notification-read").forEach(button => {
+
+      button.addEventListener("click", async () => {
+
+        const notificationId = button.dataset.notificationId;
+
+        if (!notificationId) return;
+
+        button.disabled = true;
+        button.textContent = "Updating...";
+
+        try {
+
+          await updateDoc(
+            doc(db, "notifications", notificationId),
+            {
+              isRead: true,
+              readAt: new Date().toISOString()
+            }
+          );
+
+          await openNotifications();
+
+        } catch (error) {
+
+          console.error("Mark Notification Read Error:", error);
+
+          alert("Unable to mark notification as read.");
+
+          button.disabled = false;
+          button.textContent = "Mark as Read";
+
+        }
+
+      });
+
+    });
+
+  } catch (error) {
+
+    console.error("Notifications Error:", error);
+
+    document.getElementById("modalBody").innerHTML = `
+
+      <div class="text-center py-8">
+
+        <h3 class="font-bold text-red-600">
+          Unable to Load Notifications
+        </h3>
+
+        <p class="text-sm text-gray-500 mt-2">
+          ${safeText(error.message)}
+        </p>
+
+      </div>
+
+    `;
+
+  }
+
+}
 /* PARTNER ACCOUNT MENU */
 
 document.querySelectorAll("[data-panel]").forEach(button => {
 
-  button.addEventListener("click", () => {
+  button.addEventListener("click", async () => {
 
-    if(!currentAgent) return;
+    if (!currentAgent) return;
 
     const panel = button.dataset.panel;
 
-    if(panel === "profile") {
+    if (panel === "profile") {
 
       openModal(
         "My Profile",
@@ -1178,16 +1395,21 @@ document.querySelectorAll("[data-panel]").forEach(button => {
       return;
     }
 
-if (panel === "bookings") {
-  openMyBookings();
-  return;
-}
-    const sections = {
+    if (panel === "bookings") {
 
-      bookings: [
-        "My Bookings",
-        "Your booking history will appear here after the booking system is connected."
-      ],
+      openMyBookings();
+
+      return;
+    }
+
+    if (panel === "notifications") {
+
+      await openNotifications();
+
+      return;
+    }
+
+    const sections = {
 
       commission: [
         "My Commission",
@@ -1199,11 +1421,6 @@ if (panel === "bookings") {
         "Your commission payment records will appear here after the payment module is connected."
       ],
 
-      notifications: [
-        "Notifications",
-        "There are no new notifications at the moment."
-      ],
-
       support: [
         "Support",
         "For assistance, please contact NAZYAN TRAVELS at nazyantravels@gmail.com."
@@ -1213,7 +1430,7 @@ if (panel === "bookings") {
 
     const info = sections[panel];
 
-    if(!info) return;
+    if (!info) return;
 
     openModal(
       info[0],
@@ -1223,7 +1440,6 @@ if (panel === "bookings") {
   });
 
 });
-
 
 /* SERVICE BUTTONS */
 
