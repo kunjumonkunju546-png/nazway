@@ -8,6 +8,9 @@
 <style>
 body{font-family:Arial,sans-serif}
 .nav-active{background:#1e40af;color:white}
+.page-btn{min-width:38px;padding:9px 12px;border-radius:8px;background:#334155;font-size:13px}
+.page-btn.active{background:#2563eb;color:white}
+.page-btn:disabled{opacity:.35;cursor:not-allowed}
 </style>
 </head>
 
@@ -78,14 +81,24 @@ Checking Admin Access...
 <button onclick="showAgents('all')" id="allTab" class="bg-slate-800 px-4 py-3 rounded-lg text-sm">All Agents</button>
 </div>
 
-<div class="flex justify-between items-center mb-4">
+<div class="bg-slate-900 border border-slate-700 rounded-xl p-4 mb-5">
+<label class="text-sm text-slate-300 block mb-2">Search Agents</label>
+<input id="agentSearch"
+type="search"
+placeholder="Search name, email, phone or district..."
+class="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-sm outline-none focus:border-blue-500">
+</div>
+
+<div class="flex justify-between items-center mb-4 gap-3">
 <h3 id="listTitle" class="text-xl font-bold">Pending Applications</h3>
 <button id="refreshBtn" class="bg-slate-700 px-4 py-2 rounded-lg text-sm">Refresh</button>
 </div>
 
-<div id="agentList" class="space-y-4">
+<div id="agentList" class="space-y-3">
 <p class="text-slate-400 text-center py-8">Loading agents...</p>
 </div>
+
+<div id="agentPagination" class="mt-6"></div>
 </section>
 
 <!-- FLIGHT BOOKINGS -->
@@ -99,14 +112,24 @@ Checking Admin Access...
 <button onclick="showBookings('rejected')" id="bookingRejectedTab" class="bg-slate-800 px-4 py-3 rounded-lg text-sm">Rejected</button>
 </div>
 
+<div class="bg-slate-900 border border-slate-700 rounded-xl p-4 mb-5">
+<label class="text-sm text-slate-300 block mb-2">Search Flight Bookings</label>
+<input id="bookingSearch"
+type="search"
+placeholder="Search route, agent name, email or booking ID..."
+class="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-sm outline-none focus:border-blue-500">
+</div>
+
 <div class="flex justify-between items-center mb-4 gap-3">
 <h3 id="bookingTitle" class="text-xl font-bold">All Flight Bookings</h3>
 <button id="refreshBookingsBtn" class="bg-slate-700 px-4 py-2 rounded-lg text-sm">Refresh</button>
 </div>
 
-<div id="bookingList" class="space-y-4">
+<div id="bookingList" class="space-y-3">
 <p class="text-slate-400 text-center py-8">Loading bookings...</p>
 </div>
+
+<div id="bookingPagination" class="mt-6"></div>
 </section>
 
 <footer class="text-center text-slate-500 text-xs py-10">
@@ -149,15 +172,29 @@ const logoutBtn=document.getElementById("logoutBtn");
 const agentList=document.getElementById("agentList");
 const bookingList=document.getElementById("bookingList");
 
+const PAGE_SIZE=10;
+
 let allAgents=[];
 let allBookings=[];
+
 let currentFilter="pending";
 let currentBookingFilter="all";
+
+let agentPage=1;
+let bookingPage=1;
+
 let adminAccess=false;
+
+let expandedAgents=new Set();
+let expandedBookings=new Set();
 
 function escapeHTML(value){
 return String(value??"").replace(/[&<>"']/g,char=>({
-"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;",
+"'":"&#039;"
 })[char]);
 }
 
@@ -195,6 +232,7 @@ return;
 }
 
 adminAccess=true;
+
 loading.classList.add("hidden");
 dashboard.classList.remove("hidden");
 logoutBtn.classList.remove("hidden");
@@ -220,7 +258,7 @@ section==="agents"?"nav-active px-4 py-3 rounded-lg text-sm":"bg-slate-800 px-4 
 document.getElementById("bookingsSectionTab").className=
 section==="bookings"?"nav-active px-4 py-3 rounded-lg text-sm":"bg-slate-800 px-4 py-3 rounded-lg text-sm";
 
-if(section==="bookings") loadBookings();
+if(section==="bookings")loadBookings();
 };
 
 // LOAD AGENTS
@@ -228,44 +266,61 @@ async function loadAgents(){
 
 if(!adminAccess)return;
 
-agentList.innerHTML='<p class="text-center text-slate-400 py-8">Loading...</p>';
+agentList.innerHTML='<p class="text-center text-slate-400 py-8">Loading agents...</p>';
 
 try{
 
 const snapshot=await getDocs(collection(db,"agents"));
+
 allAgents=[];
 
 snapshot.forEach(document=>{
+
 const data=document.data();
+
 if(data.role==="admin")return;
+
 allAgents.push({id:document.id,...data});
+
 });
 
 updateStatistics();
 renderAgents();
 
 }catch(error){
+
 console.error(error);
+
 agentList.innerHTML='<p class="text-red-400 p-4">Unable to load agents. Check Security Rules.</p>';
+
 }
 }
 
 function updateStatistics(){
+
 document.getElementById("totalCount").textContent=allAgents.length;
-document.getElementById("pendingCount").textContent=allAgents.filter(a=>a.status==="pending").length;
-document.getElementById("approvedCount").textContent=allAgents.filter(a=>a.status==="approved").length;
+
+document.getElementById("pendingCount").textContent=
+allAgents.filter(a=>a.status==="pending").length;
+
+document.getElementById("approvedCount").textContent=
+allAgents.filter(a=>a.status==="approved").length;
+
 }
 
 // AGENT FILTER
 window.showAgents=function(filter){
 
 currentFilter=filter;
+agentPage=1;
+expandedAgents.clear();
 
 document.querySelectorAll("#pendingTab,#approvedTab,#rejectedTab,#allTab").forEach(button=>{
 button.className="bg-slate-800 px-4 py-3 rounded-lg text-sm";
 });
 
-document.getElementById(filter+"Tab").className="nav-active px-4 py-3 rounded-lg text-sm";
+document.getElementById(filter+"Tab").className=
+"nav-active px-4 py-3 rounded-lg text-sm";
 
 const titles={
 pending:"Pending Applications",
@@ -275,7 +330,80 @@ all:"All Agents"
 };
 
 document.getElementById("listTitle").textContent=titles[filter];
+
 renderAgents();
+};
+
+// AGENT SEARCH
+document.getElementById("agentSearch").addEventListener("input",()=>{
+agentPage=1;
+expandedAgents.clear();
+renderAgents();
+});
+
+// AGENT PAGINATION
+function renderAgentPagination(total){
+
+const container=document.getElementById("agentPagination");
+
+const totalPages=Math.ceil(total/PAGE_SIZE);
+
+if(totalPages<=1){
+container.innerHTML=total===0?"":`
+<p class="text-center text-xs text-slate-500">Showing ${total} agents</p>`;
+return;
+}
+
+const start=(agentPage-1)*PAGE_SIZE+1;
+const end=Math.min(agentPage*PAGE_SIZE,total);
+
+let html=`
+<div class="flex flex-wrap items-center justify-between gap-3">
+<p class="text-xs text-slate-400">Showing ${start}–${end} of ${total} agents</p>
+<div class="flex flex-wrap items-center gap-2">
+<button class="page-btn" onclick="changeAgentPage(${agentPage-1})" ${agentPage===1?"disabled":""}>Previous</button>
+`;
+
+for(let i=1;i<=totalPages;i++){
+
+html+=`
+<button class="page-btn ${i===agentPage?"active":""}"
+onclick="changeAgentPage(${i})">${i}</button>`;
+
+}
+
+html+=`
+<button class="page-btn" onclick="changeAgentPage(${agentPage+1})" ${agentPage===totalPages?"disabled":""}>Next</button>
+</div>
+</div>`;
+
+container.innerHTML=html;
+}
+
+window.changeAgentPage=function(page){
+
+const search=document.getElementById("agentSearch").value.toLowerCase().trim();
+
+let filtered=allAgents;
+
+if(currentFilter!=="all"){
+filtered=filtered.filter(a=>a.status===currentFilter);
+}
+
+if(search){
+filtered=filtered.filter(a=>[
+a.name,a.email,a.phone,a.district,a.id
+].some(value=>String(value??"").toLowerCase().includes(search)));
+}
+
+const totalPages=Math.max(1,Math.ceil(filtered.length/PAGE_SIZE));
+
+if(page<1||page>totalPages)return;
+
+agentPage=page;
+expandedAgents.clear();
+renderAgents();
+
 };
 
 // DISPLAY AGENTS
@@ -284,15 +412,43 @@ function renderAgents(){
 let filtered=allAgents;
 
 if(currentFilter!=="all"){
-filtered=allAgents.filter(a=>a.status===currentFilter);
+filtered=filtered.filter(a=>a.status===currentFilter);
 }
+
+const search=document.getElementById("agentSearch").value.toLowerCase().trim();
+
+if(search){
+
+filtered=filtered.filter(a=>[
+a.name,a.email,a.phone,a.district,a.id
+].some(value=>String(value??"").toLowerCase().includes(search)));
+
+}
+
+filtered.sort((a,b)=>
+String(b.createdAt||"").localeCompare(String(a.createdAt||""))
+);
 
 if(filtered.length===0){
-agentList.innerHTML='<div class="bg-slate-900 border border-slate-700 rounded-xl p-8 text-center text-slate-400">No agents found.</div>';
+
+agentList.innerHTML=`
+<div class="bg-slate-900 border border-slate-700 rounded-xl p-8 text-center text-slate-400">
+No agents found.
+</div>`;
+
+document.getElementById("agentPagination").innerHTML="";
 return;
+
 }
 
-agentList.innerHTML=filtered.map(agent=>{
+const totalPages=Math.max(1,Math.ceil(filtered.length/PAGE_SIZE));
+
+if(agentPage>totalPages)agentPage=totalPages;
+
+const start=(agentPage-1)*PAGE_SIZE;
+const pageItems=filtered.slice(start,start+PAGE_SIZE);
+
+agentList.innerHTML=pageItems.map(agent=>{
 
 const color={
 pending:"text-amber-400",
@@ -300,38 +456,96 @@ approved:"text-green-400",
 rejected:"text-red-400"
 }[agent.status]||"text-slate-400";
 
+const isExpanded=expandedAgents.has(agent.id);
+
 let actions="";
 
 if(agent.status==="pending"){
+
 actions=`
 <div class="flex flex-wrap gap-2 mt-5">
 <button onclick="changeStatus('${escapeHTML(agent.id)}','approved')" class="bg-green-600 px-5 py-2 rounded-lg text-sm">Approve</button>
 <button onclick="changeStatus('${escapeHTML(agent.id)}','rejected')" class="bg-red-600 px-5 py-2 rounded-lg text-sm">Reject</button>
 </div>`;
+
 }else if(agent.status==="approved"){
-actions=`<button onclick="changeStatus('${escapeHTML(agent.id)}','rejected')" class="mt-5 bg-red-700 px-5 py-2 rounded-lg text-sm">Revoke Approval</button>`;
+
+actions=`
+<button onclick="changeStatus('${escapeHTML(agent.id)}','rejected')" class="mt-5 bg-red-700 px-5 py-2 rounded-lg text-sm">Revoke Approval</button>`;
+
 }else if(agent.status==="rejected"){
-actions=`<button onclick="changeStatus('${escapeHTML(agent.id)}','approved')" class="mt-5 bg-green-700 px-5 py-2 rounded-lg text-sm">Approve Again</button>`;
+
+actions=`
+<button onclick="changeStatus('${escapeHTML(agent.id)}','approved')" class="mt-5 bg-green-700 px-5 py-2 rounded-lg text-sm">Approve Again</button>`;
+
 }
 
 return `
-<div class="bg-slate-900 border border-slate-700 rounded-xl p-5">
-<div class="flex flex-wrap justify-between gap-3">
-<div>
-<h4 class="text-lg font-bold">${escapeHTML(agent.name)}</h4>
-<p class="text-sm text-slate-400 mt-1">${escapeHTML(agent.email)}</p>
+<div class="bg-slate-900 border border-slate-700 rounded-xl p-4">
+
+<div class="flex flex-wrap justify-between items-center gap-3">
+
+<div class="min-w-0 flex-1">
+<h4 class="font-bold text-base">${escapeHTML(agent.name||"Unnamed Agent")}</h4>
+<p class="text-sm text-slate-400 mt-1 break-all">${escapeHTML(agent.email)}</p>
+<p class="text-xs text-slate-500 mt-1">${escapeHTML(agent.district||"District not available")}</p>
 </div>
-<span class="${color} text-sm font-semibold uppercase">${escapeHTML(agent.status)}</span>
+
+<div class="text-right">
+<span class="${color} text-xs font-semibold uppercase">${escapeHTML(agent.status)}</span>
+<p class="text-xs text-amber-400 mt-1">Rating: ${escapeHTML(agent.rating??"Not rated")}</p>
 </div>
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5 text-sm">
-<p class="text-slate-300">Phone: ${escapeHTML(agent.phone)}</p>
+
+</div>
+
+<button onclick="toggleAgentDetails('${escapeHTML(agent.id)}')"
+class="mt-4 text-blue-400 text-sm font-semibold">
+${isExpanded?"Hide Details ▲":"View Details ▼"}
+</button>
+
+${isExpanded?`
+
+<div class="border-t border-slate-700 mt-4 pt-4">
+
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+
+<p class="text-slate-300">Phone: ${escapeHTML(agent.phone||"Not available")}</p>
+
+<p class="text-slate-300">District: ${escapeHTML(agent.district||"Not available")}</p>
+
+<p class="text-slate-300">Rating: ${escapeHTML(agent.rating??"Not rated")}</p>
+
 <p class="text-slate-300 break-all">Agent ID: ${escapeHTML(agent.id)}</p>
-<p class="text-slate-300">Registered: ${escapeHTML(agent.createdAt)}</p>
+
+<p class="text-slate-300 sm:col-span-2">Registered: ${escapeHTML(agent.createdAt||"Not available")}</p>
+
 </div>
+
 ${actions}
+
+</div>
+
+`:""}
+
 </div>`;
+
 }).join("");
+
+renderAgentPagination(filtered.length);
+
 }
+
+window.toggleAgentDetails=function(id){
+
+if(expandedAgents.has(id)){
+expandedAgents.delete(id);
+}else{
+expandedAgents.add(id);
+}
+
+renderAgents();
+
+};
 
 // CHANGE AGENT STATUS
 window.changeStatus=async(agentId,newStatus)=>{
@@ -339,6 +553,7 @@ window.changeStatus=async(agentId,newStatus)=>{
 if(!adminAccess)return;
 
 const agent=allAgents.find(a=>a.id===agentId);
+
 if(!agent)return;
 
 if(!confirm("Are you sure you want to "+newStatus+" "+agent.name+"?"))return;
@@ -351,11 +566,15 @@ statusUpdatedAt:new Date().toISOString()
 });
 
 alert("Agent status updated successfully!");
+
 await loadAgents();
 
 }catch(error){
+
 console.error(error);
+
 alert("Unable to update agent status. Check Security Rules.");
+
 }
 };
 
@@ -369,21 +588,27 @@ bookingList.innerHTML='<p class="text-center text-slate-400 py-8">Loading bookin
 try{
 
 const snapshot=await getDocs(collection(db,"flightBookings"));
+
 allBookings=[];
 
 snapshot.forEach(document=>{
+
 allBookings.push({id:document.id,...document.data()});
+
 });
 
-allBookings.sort((a,b)=>{
-return String(b.createdAt||"").localeCompare(String(a.createdAt||""));
-});
+allBookings.sort((a,b)=>
+String(b.createdAt||"").localeCompare(String(a.createdAt||""))
+);
 
 renderBookings();
 
 }catch(error){
+
 console.error(error);
+
 bookingList.innerHTML='<p class="text-red-400 p-4">Unable to load bookings. Check Firestore Security Rules.</p>';
+
 }
 }
 
@@ -391,12 +616,17 @@ bookingList.innerHTML='<p class="text-red-400 p-4">Unable to load bookings. Chec
 window.showBookings=function(filter){
 
 currentBookingFilter=filter;
+bookingPage=1;
+expandedBookings.clear();
 
 const filters=["all","new","processing","confirmed","rejected"];
 
 filters.forEach(item=>{
+
 const button=document.getElementById("booking"+item.charAt(0).toUpperCase()+item.slice(1)+"Tab");
+
 button.className="bg-slate-800 px-4 py-3 rounded-lg text-sm";
+
 });
 
 document.getElementById("booking"+filter.charAt(0).toUpperCase()+filter.slice(1)+"Tab").className=
@@ -411,7 +641,87 @@ rejected:"Rejected Bookings"
 };
 
 document.getElementById("bookingTitle").textContent=titles[filter];
+
 renderBookings();
+
+};
+
+// BOOKING SEARCH
+document.getElementById("bookingSearch").addEventListener("input",()=>{
+bookingPage=1;
+expandedBookings.clear();
+renderBookings();
+});
+
+// BOOKING PAGINATION
+function renderBookingPagination(total){
+
+const container=document.getElementById("bookingPagination");
+
+const totalPages=Math.ceil(total/PAGE_SIZE);
+
+if(totalPages<=1){
+
+container.innerHTML=total===0?"":`
+<p class="text-center text-xs text-slate-500">Showing ${total} bookings</p>`;
+
+return;
+
+}
+
+const start=(bookingPage-1)*PAGE_SIZE+1;
+const end=Math.min(bookingPage*PAGE_SIZE,total);
+
+let html=`
+<div class="flex flex-wrap items-center justify-between gap-3">
+<p class="text-xs text-slate-400">Showing ${start}–${end} of ${total} bookings</p>
+<div class="flex flex-wrap items-center gap-2">
+<button class="page-btn" onclick="changeBookingPage(${bookingPage-1})" ${bookingPage===1?"disabled":""}>Previous</button>
+`;
+
+for(let i=1;i<=totalPages;i++){
+
+html+=`
+<button class="page-btn ${i===bookingPage?"active":""}"
+onclick="changeBookingPage(${i})">${i}</button>`;
+
+}
+
+html+=`
+<button class="page-btn" onclick="changeBookingPage(${bookingPage+1})" ${bookingPage===totalPages?"disabled":""}>Next</button>
+</div>
+</div>`;
+
+container.innerHTML=html;
+
+}
+
+window.changeBookingPage=function(page){
+
+const search=document.getElementById("bookingSearch").value.toLowerCase().trim();
+
+let filtered=allBookings;
+
+if(currentBookingFilter!=="all"){
+filtered=filtered.filter(b=>b.status===currentBookingFilter);
+}
+
+if(search){
+
+filtered=filtered.filter(b=>[
+b.from,b.to,b.agentName,b.agentEmail,b.agentId,b.id
+].some(value=>String(value??"").toLowerCase().includes(search)));
+
+}
+
+const totalPages=Math.max(1,Math.ceil(filtered.length/PAGE_SIZE));
+
+if(page<1||page>totalPages)return;
+
+bookingPage=page;
+expandedBookings.clear();
+renderBookings();
+
 };
 
 // DISPLAY BOOKINGS
@@ -420,18 +730,43 @@ function renderBookings(){
 let filtered=allBookings;
 
 if(currentBookingFilter!=="all"){
-filtered=allBookings.filter(b=>b.status===currentBookingFilter);
+filtered=filtered.filter(b=>b.status===currentBookingFilter);
 }
 
+const search=document.getElementById("bookingSearch").value.toLowerCase().trim();
+
+if(search){
+
+filtered=filtered.filter(b=>[
+b.from,b.to,b.agentName,b.agentEmail,b.agentId,b.id
+].some(value=>String(value??"").toLowerCase().includes(search)));
+
+}
+
+filtered.sort((a,b)=>
+String(b.createdAt||"").localeCompare(String(a.createdAt||""))
+);
+
 if(filtered.length===0){
+
 bookingList.innerHTML=`
 <div class="bg-slate-900 border border-slate-700 rounded-xl p-8 text-center">
 <p class="text-slate-400">No bookings found in this section.</p>
 </div>`;
+
+document.getElementById("bookingPagination").innerHTML="";
 return;
+
 }
 
-bookingList.innerHTML=filtered.map(booking=>{
+const totalPages=Math.max(1,Math.ceil(filtered.length/PAGE_SIZE));
+
+if(bookingPage>totalPages)bookingPage=totalPages;
+
+const start=(bookingPage-1)*PAGE_SIZE;
+const pageItems=filtered.slice(start,start+PAGE_SIZE);
+
+bookingList.innerHTML=pageItems.map(booking=>{
 
 const statusColor={
 new:"text-amber-400",
@@ -442,28 +777,59 @@ rejected:"text-red-400"
 
 const tripType=booking.tripType==="roundtrip"?"Round Trip":"One Way";
 
+const isExpanded=expandedBookings.has(booking.id);
+
 return `
-<div class="bg-slate-900 border border-slate-700 rounded-xl p-5">
+<div class="bg-slate-900 border border-slate-700 rounded-xl p-4">
 
-<div class="flex flex-wrap justify-between gap-3">
-<div>
-<h3 class="text-xl font-bold">${escapeHTML(booking.from)} → ${escapeHTML(booking.to)}</h3>
+<div class="flex flex-wrap justify-between items-center gap-3">
+
+<div class="min-w-0 flex-1">
+<h3 class="text-lg font-bold">${escapeHTML(booking.from)} → ${escapeHTML(booking.to)}</h3>
 <p class="text-sm text-slate-400 mt-1">${tripType}</p>
-</div>
-<span class="${statusColor} font-bold uppercase text-sm">${escapeHTML(booking.status)}</span>
+<p class="text-xs text-slate-500 mt-1">Agent: ${escapeHTML(booking.agentName)}</p>
+<p class="text-xs text-slate-500 mt-1">Departure: ${escapeHTML(booking.departureDate)}</p>
 </div>
 
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5 text-sm">
+<div class="text-right">
+<span class="${statusColor} font-bold uppercase text-xs">${escapeHTML(booking.status)}</span>
+<p class="text-xs text-slate-500 mt-2">${escapeHTML(booking.createdAt||"")}</p>
+</div>
+
+</div>
+
+<button onclick="toggleBookingDetails('${escapeHTML(booking.id)}')"
+class="mt-4 text-blue-400 text-sm font-semibold">
+${isExpanded?"Hide Details ▲":"View Details ▼"}
+</button>
+
+${isExpanded?`
+
+<div class="border-t border-slate-700 mt-4 pt-4">
+
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
 
 <p><span class="text-slate-400">Agent:</span> ${escapeHTML(booking.agentName)}</p>
+
 <p><span class="text-slate-400">Agent Email:</span> ${escapeHTML(booking.agentEmail)}</p>
-<p class="break-all"><span class="text-slate-400">Agent ID:</span> ${escapeHTML(booking.agentId)}</p>
+
+<p class="break-all sm:col-span-2"><span class="text-slate-400">Agent ID:</span> ${escapeHTML(booking.agentId)}</p>
+
+<p><span class="text-slate-400">Trip Type:</span> ${tripType}</p>
+
 <p><span class="text-slate-400">Departure:</span> ${escapeHTML(booking.departureDate)}</p>
+
 <p><span class="text-slate-400">Return:</span> ${escapeHTML(booking.returnDate||"Not applicable")}</p>
+
 <p><span class="text-slate-400">Adults:</span> ${escapeHTML(booking.adults)}</p>
+
 <p><span class="text-slate-400">Children:</span> ${escapeHTML(booking.children)}</p>
+
 <p><span class="text-slate-400">Infants:</span> ${escapeHTML(booking.infants)}</p>
+
 <p><span class="text-slate-400">Booking Date:</span> ${escapeHTML(booking.createdAt)}</p>
+
+<p class="break-all sm:col-span-2"><span class="text-slate-400">Booking ID:</span> ${escapeHTML(booking.id)}</p>
 
 </div>
 
@@ -473,23 +839,48 @@ return `
 </div>
 
 <div class="mt-5 border-t border-slate-700 pt-4">
+
 <p class="text-sm text-slate-400 mb-3">Update Booking Status</p>
 
 <div class="flex flex-wrap gap-2">
+
 ${["new","processing","confirmed","rejected"].map(status=>`
+
 <button
 onclick="changeBookingStatus('${escapeHTML(booking.id)}','${status}')"
 ${booking.status===status?"disabled":""}
 class="${booking.status===status?"bg-slate-700 text-slate-400 opacity-60":"bg-blue-700 hover:bg-blue-600"} px-4 py-2 rounded-lg text-xs font-semibold">
 ${status.toUpperCase()}
 </button>
+
 `).join("")}
+
 </div>
 </div>
 
+</div>
+
+`:""}
+
 </div>`;
+
 }).join("");
+
+renderBookingPagination(filtered.length);
+
 }
+
+window.toggleBookingDetails=function(id){
+
+if(expandedBookings.has(id)){
+expandedBookings.delete(id);
+}else{
+expandedBookings.add(id);
+}
+
+renderBookings();
+
+};
 
 // CHANGE BOOKING STATUS
 window.changeBookingStatus=async(bookingId,newStatus)=>{
@@ -500,6 +891,7 @@ return;
 }
 
 const booking=allBookings.find(b=>b.id===bookingId);
+
 if(!booking)return;
 
 if(!confirm("Change booking status to "+newStatus.toUpperCase()+"?"))return;
@@ -516,13 +908,17 @@ alert("Booking status updated successfully!");
 await loadBookings();
 
 }catch(error){
+
 console.error(error);
-alert("Unable to update booking status. Check Firestore Security Rules.");
+
+alert("Unable to update booking status. Check Security Rules.");
+
 }
 };
 
 // REFRESH BUTTONS
 document.getElementById("refreshBtn").addEventListener("click",loadAgents);
+
 document.getElementById("refreshBookingsBtn").addEventListener("click",loadBookings);
 
 // LOGOUT
@@ -531,10 +927,14 @@ logoutBtn.addEventListener("click",async()=>{
 if(!confirm("Are you sure you want to logout?"))return;
 
 try{
+
 await signOut(auth);
 location.replace("index.html");
+
 }catch(error){
+
 alert("Logout failed. Please try again.");
+
 }
 
 });
