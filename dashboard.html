@@ -1,393 +1,590 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NAZWAY - Agent Dashboard</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#003f35">
+<title>NAZWAY - Partner Dashboard</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #f4f7fb;
-        }
-
-        .brand {
-            color: #123d67;
-        }
-
-        .brand-bg {
-            background: #123d67;
-        }
-
-        .gold {
-            color: #c5a868;
-        }
-
-        .card {
-            background: white;
-            border: 1px solid #e8edf3;
-            border-radius: 16px;
-            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
-        }
-    </style>
+<style>
+:root {
+  --green:#004438;
+  --dark:#00372f;
+  --gold:#c9a23b;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  font-family:Inter,sans-serif;
+  background:#f4f7f8;
+  color:#183744;
+}
+.topbar {
+  background:linear-gradient(105deg,#00372f,#005448);
+}
+.hero {
+  min-height:235px;
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.94),rgba(255,255,255,.65),rgba(255,255,255,.05)),
+    url("assets/hero-travel.jpg") center/cover;
+  border-bottom:7px solid var(--gold);
+}
+.section-title {
+  color:var(--green);
+  border-left:6px solid var(--gold);
+  padding-left:14px;
+  font-weight:800;
+}
+.service-card {
+  position:relative;
+  min-height:250px;
+  overflow:hidden;
+  border-radius:18px;
+  background:#064c42;
+  box-shadow:0 7px 16px rgba(0,44,37,.18);
+  text-align:left;
+  cursor:pointer;
+}
+.service-card img {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  z-index:0;
+}
+.service-card:after {
+  content:"";
+  position:absolute;
+  inset:25% 0 0;
+  background:linear-gradient(transparent,rgba(0,47,41,.96));
+  z-index:1;
+}
+.service-bottom {
+  position:absolute;
+  z-index:2;
+  bottom:16px;
+  left:16px;
+  right:16px;
+  color:white;
+}
+.account-card {
+  display:flex;
+  align-items:center;
+  gap:15px;
+  width:100%;
+  min-height:82px;
+  padding:15px;
+  border:1px solid #e3eaed;
+  border-radius:16px;
+  background:white;
+  text-align:left;
+  box-shadow:0 4px 12px rgba(17,50,61,.08);
+}
+.account-icon {
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  color:white;
+  background:linear-gradient(145deg,#087b65,#003f35);
+  font-size:23px;
+  flex-shrink:0;
+}
+.modal-backdrop {
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:50;
+  background:rgba(0,25,22,.65);
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+}
+.modal-backdrop.show { display:flex; }
+.modal-panel {
+  width:100%;
+  max-width:550px;
+  max-height:85vh;
+  overflow:auto;
+  background:white;
+  border-radius:20px;
+}
+.modal-head {
+  background:var(--green);
+  color:white;
+  padding:18px 22px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.modal-body { padding:22px; }
+.detail-row {
+  padding:13px 0;
+  border-bottom:1px solid #e9eef0;
+}
+.detail-label {
+  font-size:11px;
+  color:#81909a;
+  font-weight:800;
+  text-transform:uppercase;
+}
+.detail-value {
+  margin-top:5px;
+  font-weight:600;
+  overflow-wrap:anywhere;
+}
+.footer {
+  background:linear-gradient(105deg,#00372f,#004b40);
+  color:white;
+  border-top:7px solid var(--gold);
+}
+@media(max-width:640px) {
+  .hero { min-height:205px; background-position:57% center; }
+  .service-card { min-height:220px; }
+}
+</style>
 </head>
 
-<body class="min-h-screen">
+<body>
 
-    <header class="brand-bg text-white shadow-lg">
-        <div class="max-w-6xl mx-auto px-5 py-5 flex items-center justify-between gap-4">
-            <div>
-                <h1 class="text-xl sm:text-2xl font-extrabold tracking-wide">
-                    NAZWAY
-                </h1>
-                <p class="text-xs text-blue-100 tracking-widest mt-1">
-                    NAZYAN TRAVELS & TOURS
-                </p>
-            </div>
+<header class="topbar text-white shadow-lg">
+  <div class="max-w-[1600px] mx-auto px-4 sm:px-7 py-4 flex justify-between items-center gap-3">
 
-            <button
-                id="logoutBtn"
-                class="bg-white text-blue-900 px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-50 transition"
-                type="button"
-            >
-                Logout
-            </button>
+    <!-- YOUR OFFICIAL LOGO WILL BE ADDED HERE -->
+    <div>
+      <div class="text-2xl sm:text-3xl font-extrabold tracking-widest">NAZYAN</div>
+      <div class="text-xs text-yellow-200 font-bold tracking-widest">TRAVELS &amp; TOURS</div>
+      <div class="text-xs text-emerald-100 mt-1">Partner Portal</div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div class="hidden sm:block text-right">
+        <div id="headerAgentName" class="font-semibold">Partner</div>
+        <div class="text-xs text-emerald-100">Partner Account</div>
+      </div>
+      <button id="logoutBtn" type="button"
+        class="bg-white text-green-900 px-4 py-2 rounded-xl text-sm font-bold">
+        Logout
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-[1600px] mx-auto px-3 sm:px-5 py-5">
+
+  <div id="loadingBox" class="bg-white rounded-2xl p-8 text-center shadow">
+    <h2 class="text-lg font-bold text-green-900">Loading Dashboard...</h2>
+    <p class="text-gray-500 text-sm mt-2">Please wait...</p>
+  </div>
+
+  <div id="errorBox" class="hidden bg-white rounded-2xl p-8 text-center shadow">
+    <h2 id="errorTitle" class="text-xl font-bold text-red-600">Account Error</h2>
+    <p id="errorMessage" class="text-gray-600 mt-3"></p>
+    <button id="errorLogoutBtn" type="button"
+      class="mt-6 bg-green-900 text-white px-6 py-3 rounded-xl font-bold">
+      Logout
+    </button>
+  </div>
+
+  <div id="dashboardContent" class="hidden">
+
+    <!-- WELCOME BANNER -->
+    <section class="hero rounded-2xl shadow-md flex items-center px-6 sm:px-11 py-7 mb-7">
+      <div class="max-w-xl">
+        <h1 class="text-3xl sm:text-5xl font-extrabold text-green-900">
+          Welcome, <span id="agentName" class="text-yellow-700">Partner</span>!
+        </h1>
+        <div class="flex flex-wrap items-center gap-3 mt-4">
+          <span id="statusBadge"
+            class="bg-emerald-600 text-white px-4 py-2 rounded-full text-sm font-bold">
+            ✓ APPROVED
+          </span>
+          <span class="font-bold text-green-900">Partner Account</span>
         </div>
-    </header>
+        <p class="italic font-semibold text-green-900 mt-3">
+          Your Journey, Our Care
+        </p>
+      </div>
+    </section>
 
-    <main class="max-w-6xl mx-auto px-5 py-8">
+    <!-- FOUR MAIN SERVICES -->
+    <section class="mb-8">
+      <div class="flex items-center justify-between mb-5">
+        <h2 class="section-title text-2xl sm:text-3xl">Partner Services</h2>
+        <span class="hidden sm:block text-green-900 italic font-semibold">Book · Travel · Earn</span>
+      </div>
 
-        <div id="loadingBox" class="card p-8 text-center">
-            <div class="text-lg font-bold brand">Loading Dashboard...</div>
-            <p class="text-gray-500 text-sm mt-2">
-                Please wait while we verify your account.
-            </p>
-        </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
 
-        <div id="errorBox" class="hidden card p-8 text-center">
-            <h2 class="text-xl font-bold text-red-600" id="errorTitle">
-                Account Error
-            </h2>
-            <p class="text-gray-600 mt-3" id="errorMessage"></p>
-            <button
-                id="errorLogoutBtn"
-                type="button"
-                class="brand-bg text-white px-6 py-3 rounded-lg mt-6 font-bold"
-            >
-                Logout
-            </button>
-        </div>
+        <button type="button" class="service-card"
+          data-service="Flight Tickets"
+          data-description="Flight booking service is being prepared.">
+          <img src="assets/flight.jpg" alt="Flight Tickets">
+          <span class="service-bottom flex items-end gap-3">
+            <span class="text-3xl">✈</span>
+            <span class="flex-1">
+              <span class="block text-xl font-extrabold">Flight Tickets</span>
+              <span class="block text-sm mt-1">Book Flight Tickets</span>
+            </span>
+            <span class="text-3xl text-yellow-300">›</span>
+          </span>
+        </button>
 
-        <div id="dashboardContent" class="hidden">
+        <button type="button" class="service-card"
+          data-service="Tour Packages"
+          data-description="Tour and holiday package service is being prepared.">
+          <img src="assets/tour.jpg" alt="Tour Packages">
+          <span class="service-bottom flex items-end gap-3">
+            <span class="text-3xl">🌍</span>
+            <span class="flex-1">
+              <span class="block text-xl font-extrabold">Tour Packages</span>
+              <span class="block text-sm mt-1">Explore Amazing Tours</span>
+            </span>
+            <span class="text-3xl text-yellow-300">›</span>
+          </span>
+        </button>
 
-            <section class="mb-8">
-                <p class="text-sm text-gray-500 font-medium">
-                    AGENT PORTAL
-                </p>
+        <button type="button" class="service-card"
+          data-service="Umrah Packages"
+          data-description="Umrah package service is being prepared.">
+          <img src="assets/umrah.jpg" alt="Umrah Packages">
+          <span class="service-bottom flex items-end gap-3">
+            <span class="text-3xl">🕋</span>
+            <span class="flex-1">
+              <span class="block text-xl font-extrabold">Umrah Packages</span>
+              <span class="block text-sm mt-1">Plan Your Umrah</span>
+            </span>
+            <span class="text-3xl text-yellow-300">›</span>
+          </span>
+        </button>
 
-                <h2 class="text-2xl sm:text-3xl font-extrabold brand mt-2">
-                    Welcome, <span id="agentName">Agent</span>!
-                </h2>
+        <button type="button" class="service-card"
+          data-service="Visa Services"
+          data-description="Visa and document assistance service is being prepared.">
+          <img src="assets/visa.jpg" alt="Visa Services">
+          <span class="service-bottom flex items-end gap-3">
+            <span class="text-3xl">📄</span>
+            <span class="flex-1">
+              <span class="block text-xl font-extrabold">Visa Services</span>
+              <span class="block text-sm mt-1">Get Your Visa</span>
+            </span>
+            <span class="text-3xl text-yellow-300">›</span>
+          </span>
+        </button>
 
-                <p class="text-gray-500 mt-2">
-                    Welcome to your NAZWAY Partner Dashboard.
-                </p>
-            </section>
+      </div>
+    </section>
 
-            <section class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
+    <!-- AGENT ACCOUNT MENU -->
+    <section class="mb-7">
+      <h2 class="section-title text-2xl sm:text-3xl mb-5">Partner Account</h2>
 
-                <div class="card p-6">
-                    <div class="text-sm text-gray-500 font-semibold">
-                        ACCOUNT STATUS
-                    </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
 
-                    <div class="mt-4">
-                        <span
-                            id="statusBadge"
-                            class="inline-block px-4 py-2 rounded-full text-sm font-bold"
-                        >
-                            Approved
-                        </span>
-                    </div>
+        <button type="button" class="account-card" data-panel="profile">
+          <span class="account-icon">♙</span>
+          <span>
+            <span class="block font-extrabold text-lg">My Profile</span>
+            <span class="block text-sm text-gray-500">View Your Profile</span>
+          </span>
+          <span class="ml-auto text-2xl text-green-900">›</span>
+        </button>
 
-                    <p class="text-gray-500 text-sm mt-4">
-                        Your account approval status.
-                    </p>
-                </div>
+        <button type="button" class="account-card" data-panel="bookings">
+          <span class="account-icon">▦</span>
+          <span>
+            <span class="block font-extrabold text-lg">My Bookings</span>
+            <span class="block text-sm text-gray-500">Check Your Bookings</span>
+          </span>
+          <span class="ml-auto text-2xl text-green-900">›</span>
+        </button>
 
-                <div class="card p-6">
-                    <div class="text-sm text-gray-500 font-semibold">
-                        PARTNER ACCOUNT
-                    </div>
+        <button type="button" class="account-card" data-panel="commission">
+          <span class="account-icon">▣</span>
+          <span>
+            <span class="block font-extrabold text-lg">My Commission</span>
+            <span class="block text-sm text-gray-500">View Commission Details</span>
+          </span>
+          <span class="ml-auto text-2xl text-green-900">›</span>
+        </button>
 
-                    <h3 class="text-xl font-bold brand mt-4">
-                        NAZWAY Agent
-                    </h3>
+        <button type="button" class="account-card" data-panel="payments">
+          <span class="account-icon">◷</span>
+          <span>
+            <span class="block font-extrabold text-lg">Payment History</span>
+            <span class="block text-sm text-gray-500">View Payment Details</span>
+          </span>
+          <span class="ml-auto text-2xl text-green-900">›</span>
+        </button>
 
-                    <p class="text-gray-500 text-sm mt-2">
-                        Official NAZYAN TRAVELS Partner Portal.
-                    </p>
-                </div>
+        <button type="button" class="account-card" data-panel="notifications">
+          <span class="account-icon">♟</span>
+          <span>
+            <span class="block font-extrabold text-lg">Notifications</span>
+            <span class="block text-sm text-gray-500">View Notifications</span>
+          </span>
+          <span class="ml-auto text-2xl text-green-900">›</span>
+        </button>
 
-            </section>
+        <button type="button" class="account-card" data-panel="support">
+          <span class="account-icon">☏</span>
+          <span>
+            <span class="block font-extrabold text-lg">Support</span>
+            <span class="block text-sm text-gray-500">Get Help &amp; Support</span>
+          </span>
+          <span class="ml-auto text-2xl text-green-900">›</span>
+        </button>
 
-            <section class="card p-6 sm:p-8 mb-8">
-                <h3 class="text-lg font-extrabold brand mb-6">
-                    My Profile
-                </h3>
+      </div>
+    </section>
+  </div>
+</main>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+<footer class="footer text-center py-5 px-3">
+  <div class="text-sm font-semibold tracking-wider">
+    NAZYAN TRAVELS &amp; TOURS
+    <span class="mx-2 text-yellow-300">|</span>
+    <span class="italic">Your Journey, Our Care</span>
+  </div>
+  <div class="text-xs text-emerald-100 mt-2">© 2026 All rights reserved.</div>
+</footer>
 
-                    <div>
-                        <p class="text-xs text-gray-400 font-bold uppercase">
-                            Full Name
-                        </p>
-                        <p id="profileName" class="text-gray-800 font-semibold mt-2 break-words">
-                            -
-                        </p>
-                    </div>
+<!-- POPUP WINDOW -->
+<div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true">
+  <div class="modal-panel">
+    <div class="modal-head">
+      <h2 id="modalTitle" class="text-xl font-extrabold">Details</h2>
+      <button id="closeModalBtn" type="button" class="text-3xl">×</button>
+    </div>
+    <div id="modalBody" class="modal-body"></div>
+  </div>
+</div>
 
-                    <div>
-                        <p class="text-xs text-gray-400 font-bold uppercase">
-                            Email Address
-                        </p>
-                        <p id="profileEmail" class="text-gray-800 font-semibold mt-2 break-words">
-                            -
-                        </p>
-                    </div>
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 
-                    <div>
-                        <p class="text-xs text-gray-400 font-bold uppercase">
-                            Phone Number
-                        </p>
-                        <p id="profilePhone" class="text-gray-800 font-semibold mt-2 break-words">
-                            -
-                        </p>
-                    </div>
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-                    <div>
-                        <p class="text-xs text-gray-400 font-bold uppercase">
-                            Account Type
-                        </p>
-                        <p class="text-gray-800 font-semibold mt-2">
-                            Affiliate Agent
-                        </p>
-                    </div>
+import {
+  getFirestore,
+  doc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-                </div>
-            </section>
+const firebaseConfig = {
+  apiKey: "AIzaSyCCrmQBOFUNoUf6xv1q48MYhbOHL22JJig",
+  authDomain: "nazway-7d9f4.firebaseapp.com",
+  projectId: "nazway-7d9f4",
+  storageBucket: "nazway-7d9f4.firebasestorage.app",
+  messagingSenderId: "993042222919",
+  appId: "1:993042222919:web:3c0fab205ede2443f38662",
+  measurementId: "G-1NGSFBVMX6"
+};
 
-            <section class="card p-6 sm:p-8">
-                <h3 class="text-lg font-extrabold brand">
-                    Partner Services
-                </h3>
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-                <p class="text-gray-500 text-sm mt-2">
-                    Your partner services and business tools will be available here.
-                </p>
+const loadingBox = document.getElementById("loadingBox");
+const errorBox = document.getElementById("errorBox");
+const dashboardContent = document.getElementById("dashboardContent");
+const modalBackdrop = document.getElementById("modalBackdrop");
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+let currentAgent = null;
 
-                    <div class="border border-gray-200 rounded-xl p-5">
-                        <div class="text-2xl mb-3">✈️</div>
-                        <h4 class="font-bold brand">Flight Tickets</h4>
-                        <p class="text-sm text-gray-500 mt-2">
-                            Flight booking services for your customers.
-                        </p>
-                        <span class="text-xs text-amber-700 font-semibold mt-3 inline-block">
-                            Coming Soon
-                        </span>
-                    </div>
+function showError(title, message) {
+  loadingBox.classList.add("hidden");
+  dashboardContent.classList.add("hidden");
+  errorBox.classList.remove("hidden");
+  document.getElementById("errorTitle").textContent = title;
+  document.getElementById("errorMessage").textContent = message;
+}
 
-                    <div class="border border-gray-200 rounded-xl p-5">
-                        <div class="text-2xl mb-3">🌍</div>
-                        <h4 class="font-bold brand">Tour Packages</h4>
-                        <p class="text-sm text-gray-500 mt-2">
-                            Tour and holiday package services.
-                        </p>
-                        <span class="text-xs text-amber-700 font-semibold mt-3 inline-block">
-                            Coming Soon
-                        </span>
-                    </div>
+async function logoutUser() {
+  try {
+    await signOut(auth);
+    window.location.replace("index.html");
+  } catch(error) {
+    alert("Logout failed: " + error.message);
+  }
+}
 
-                    <div class="border border-gray-200 rounded-xl p-5">
-                        <div class="text-2xl mb-3">🕋</div>
-                        <h4 class="font-bold brand">Umrah Packages</h4>
-                        <p class="text-sm text-gray-500 mt-2">
-                            Umrah travel services.
-                        </p>
-                        <span class="text-xs text-amber-700 font-semibold mt-3 inline-block">
-                            Coming Soon
-                        </span>
-                    </div>
+document.getElementById("logoutBtn").addEventListener("click", logoutUser);
+document.getElementById("errorLogoutBtn").addEventListener("click", logoutUser);
 
-                    <div class="border border-gray-200 rounded-xl p-5">
-                        <div class="text-2xl mb-3">📄</div>
-                        <h4 class="font-bold brand">Visa Services</h4>
-                        <p class="text-sm text-gray-500 mt-2">
-                            Visa and document assistance.
-                        </p>
-                        <span class="text-xs text-amber-700 font-semibold mt-3 inline-block">
-                            Coming Soon
-                        </span>
-                    </div>
+function openModal(title, html) {
+  document.getElementById("modalTitle").textContent = title;
+  document.getElementById("modalBody").innerHTML = html;
+  modalBackdrop.classList.add("show");
+  document.body.style.overflow = "hidden";
+}
 
-                </div>
-            </section>
+function closeModal() {
+  modalBackdrop.classList.remove("show");
+  document.body.style.overflow = "";
+}
 
-        </div>
-    </main>
+document.getElementById("closeModalBtn").addEventListener("click", closeModal);
 
-    <footer class="text-center text-xs text-gray-400 py-8">
-        © 2026 NAZYAN TRAVELS & TOURS. All rights reserved.
-    </footer>
+modalBackdrop.addEventListener("click", event => {
+  if(event.target === modalBackdrop) closeModal();
+});
 
-    <script type="module">
-        import {
-            initializeApp
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+document.addEventListener("keydown", event => {
+  if(event.key === "Escape") closeModal();
+});
 
-        import {
-            getAuth,
-            onAuthStateChanged,
-            signOut
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+function safeText(value) {
+  return String(value ?? "Not available").replace(/[&<>"']/g, char => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  }[char]));
+}
 
-        import {
-            getFirestore,
-            doc,
-            getDoc
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+function detail(label, value) {
+  return `
+    <div class="detail-row">
+      <div class="detail-label">${label}</div>
+      <div class="detail-value">${safeText(value)}</div>
+    </div>
+  `;
+}
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCCrmQBOFUNoUf6xv1q48MYhbOHL22JJig",
-            authDomain: "nazway-7d9f4.firebaseapp.com",
-            projectId: "nazway-7d9f4",
-            storageBucket: "nazway-7d9f4.firebasestorage.app",
-            messagingSenderId: "993042222919",
-            appId: "1:993042222919:web:3c0fab205ede2443f38662",
-            measurementId: "G-1NGSFBVMX6"
-        };
+/* MY PROFILE / BOOKINGS / COMMISSION */
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+document.querySelectorAll("[data-panel]").forEach(button => {
+  button.addEventListener("click", () => {
+    if(!currentAgent) return;
 
-        const loadingBox = document.getElementById("loadingBox");
-        const errorBox = document.getElementById("errorBox");
-        const dashboardContent = document.getElementById("dashboardContent");
+    const panel = button.dataset.panel;
 
-        const agentName = document.getElementById("agentName");
-        const profileName = document.getElementById("profileName");
-        const profileEmail = document.getElementById("profileEmail");
-        const profilePhone = document.getElementById("profilePhone");
-        const statusBadge = document.getElementById("statusBadge");
+    if(panel === "profile") {
+      openModal("My Profile",
+        detail("Full Name", currentAgent.name) +
+        detail("Email Address", currentAgent.email) +
+        detail("Phone Number", currentAgent.phone) +
+        detail("Account Type", "Affiliate Agent") +
+        detail("Account Status", "Approved")
+      );
+      return;
+    }
 
-        function showError(title, message) {
-            loadingBox.classList.add("hidden");
-            dashboardContent.classList.add("hidden");
-            errorBox.classList.remove("hidden");
+    const sections = {
+      bookings: [
+        "My Bookings",
+        "Your booking history will appear here after the booking system is connected."
+      ],
+      commission: [
+        "My Commission",
+        "Your confirmed, pending and paid commission details will appear here after the commission module is connected."
+      ],
+      payments: [
+        "Payment History",
+        "Your commission payment records will appear here after the payment module is connected."
+      ],
+      notifications: [
+        "Notifications",
+        "There are no new notifications at the moment."
+      ],
+      support: [
+        "Support",
+        "For assistance, please contact NAZYAN TRAVELS through the official support contact."
+      ]
+    };
 
-            document.getElementById("errorTitle").textContent = title;
-            document.getElementById("errorMessage").textContent = message;
-        }
+    const info = sections[panel];
+    openModal(info[0], `<p class="text-gray-600 leading-relaxed">${info[1]}</p>`);
+  });
+});
 
-        async function logoutUser() {
-            try {
-                await signOut(auth);
-                window.location.replace("index.html");
-            } catch (error) {
-                alert("Logout failed: " + error.message);
-            }
-        }
+/* SERVICE BUTTONS */
 
-        document.getElementById("logoutBtn").addEventListener("click", logoutUser);
-        document.getElementById("errorLogoutBtn").addEventListener("click", logoutUser);
+document.querySelectorAll("[data-service]").forEach(button => {
+  button.addEventListener("click", () => {
+    openModal(
+      button.dataset.service,
+      `<p class="text-gray-600 leading-relaxed">${button.dataset.description}</p>
+       <p class="text-sm text-amber-700 font-semibold mt-4">Booking feature is being prepared.</p>`
+    );
+  });
+});
 
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                window.location.replace("index.html");
-                return;
-            }
+/* CHECK USER LOGIN AND APPROVAL */
 
-            try {
-                const agentRef = doc(db, "agents", user.uid);
-                const agentSnap = await getDoc(agentRef);
+onAuthStateChanged(auth, async user => {
+  if(!user) {
+    window.location.replace("index.html");
+    return;
+  }
 
-                if (!agentSnap.exists()) {
-                    await signOut(auth);
-                    window.location.replace("index.html");
-                    return;
-                }
+  try {
+    const agentSnap = await getDoc(doc(db, "agents", user.uid));
 
-                const agentData = agentSnap.data();
+    if(!agentSnap.exists()) {
+      await signOut(auth);
+      window.location.replace("index.html");
+      return;
+    }
 
-                if (agentData.role === "admin") {
-                    window.location.replace("admin.html");
-                    return;
-                }
+    const data = agentSnap.data();
 
-                if (agentData.role !== "agent") {
-                    await signOut(auth);
-                    window.location.replace("index.html");
-                    return;
-                }
+    if(data.role === "admin") {
+      window.location.replace("admin.html");
+      return;
+    }
 
-                if (agentData.status !== "approved") {
-                    loadingBox.classList.add("hidden");
-                    dashboardContent.classList.add("hidden");
-                    errorBox.classList.remove("hidden");
+    if(data.role !== "agent") {
+      await signOut(auth);
+      window.location.replace("index.html");
+      return;
+    }
 
-                    if (agentData.status === "pending") {
-                        showError(
-                            "Approval Pending",
-                            "Your partner account is waiting for admin approval. Please try again later."
-                        );
-                    } else if (agentData.status === "rejected") {
-                        showError(
-                            "Account Not Approved",
-                            "Your partner account has not been approved. Please contact NAZYAN TRAVELS."
-                        );
-                    } else {
-                        showError(
-                            "Account Status Unavailable",
-                            "Your account status could not be verified. Please contact NAZYAN TRAVELS."
-                        );
-                    }
+    if(data.status !== "approved") {
+      showError(
+        data.status === "pending" ? "Approval Pending" : "Account Not Approved",
+        data.status === "pending"
+          ? "Your partner account is waiting for admin approval. Please try again later."
+          : "Your partner account has not been approved. Please contact NAZYAN TRAVELS."
+      );
+      return;
+    }
 
-                    return;
-                }
+    currentAgent = {
+      name: data.name || "Agent",
+      email: data.email || user.email || "Not available",
+      phone: data.phone || "Not available"
+    };
 
-                const name = agentData.name || "Agent";
-                const email = agentData.email || user.email || "Not available";
-                const phone = agentData.phone || "Not available";
+    document.getElementById("agentName").textContent = currentAgent.name;
+    document.getElementById("headerAgentName").textContent = currentAgent.name;
+    document.getElementById("statusBadge").textContent = "✓ APPROVED";
 
-                agentName.textContent = name;
-                profileName.textContent = name;
-                profileEmail.textContent = email;
-                profilePhone.textContent = phone;
+    loadingBox.classList.add("hidden");
+    errorBox.classList.add("hidden");
+    dashboardContent.classList.remove("hidden");
 
-                statusBadge.textContent = "APPROVED";
-                statusBadge.className =
-                    "inline-block px-4 py-2 rounded-full text-sm font-bold bg-green-100 text-green-700";
-
-                loadingBox.classList.add("hidden");
-                errorBox.classList.add("hidden");
-                dashboardContent.classList.remove("hidden");
-
-            } catch (error) {
-                console.error("NAZWAY Dashboard Error:", error);
-
-                showError(
-                    "Unable to Load Dashboard",
-                    "Please check your internet connection and try again. If the problem continues, contact NAZYAN TRAVELS."
-                );
-            }
-        });
-    </script>
+  } catch(error) {
+    console.error("NAZWAY Dashboard Error:", error);
+    showError(
+      "Unable to Load Dashboard",
+      "Please check your internet connection and try again. If the problem continues, contact NAZYAN TRAVELS."
+    );
+  }
+});
+</script>
 
 </body>
 </html>
