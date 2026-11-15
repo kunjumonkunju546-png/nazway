@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NAZWAY - Agent Dashboard</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f4f7fb;
+        }
+
+        .brand {
+            color: #123d67;
+        }
+
+        .brand-bg {
+            background: #123d67;
+        }
+
+        .gold {
+            color: #c5a868;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e8edf3;
+            border-radius: 16px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen">
+
+    <header class="brand-bg text-white shadow-lg">
+        <div class="max-w-6xl mx-auto px-5 py-5 flex items-center justify-between gap-4">
+            <div>
+                <h1 class="text-xl sm:text-2xl font-extrabold tracking-wide">
+                    NAZWAY
+                </h1>
+                <p class="text-xs text-blue-100 tracking-widest mt-1">
+                    NAZYAN TRAVELS & TOURS
+                </p>
+            </div>
+
+            <button
+                id="logoutBtn"
+                class="bg-white text-blue-900 px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-50 transition"
+                type="button"
+            >
+                Logout
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-5 py-8">
+
+        <div id="loadingBox" class="card p-8 text-center">
+            <div class="text-lg font-bold brand">Loading Dashboard...</div>
+            <p class="text-gray-500 text-sm mt-2">
+                Please wait while we verify your account.
+            </p>
+        </div>
+
+        <div id="errorBox" class="hidden card p-8 text-center">
+            <h2 class="text-xl font-bold text-red-600" id="errorTitle">
+                Account Error
+            </h2>
+            <p class="text-gray-600 mt-3" id="errorMessage"></p>
+            <button
+                id="errorLogoutBtn"
+                type="button"
+                class="brand-bg text-white px-6 py-3 rounded-lg mt-6 font-bold"
+            >
+                Logout
+            </button>
+        </div>
+
+        <div id="dashboardContent" class="hidden">
+
+            <section class="mb-8">
+                <p class="text-sm text-gray-500 font-medium">
+                    AGENT PORTAL
+                </p>
+
+                <h2 class="text-2xl sm:text-3xl font-extrabold brand mt-2">
+                    Welcome, <span id="agentName">Agent</span>!
+                </h2>
+
+                <p class="text-gray-500 mt-2">
+                    Welcome to your NAZWAY Partner Dashboard.
+                </p>
+            </section>
+
+            <section class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
+
+                <div class="card p-6">
+                    <div class="text-sm text-gray-500 font-semibold">
+                        ACCOUNT STATUS
+                    </div>
+
+                    <div class="mt-4">
+                        <span
+                            id="statusBadge"
+                            class="inline-block px-4 py-2 rounded-full text-sm font-bold"
+                        >
+                            Approved
+                        </span>
+                    </div>
+
+                    <p class="text-gray-500 text-sm mt-4">
+                        Your account approval status.
+                    </p>
+                </div>
+
+                <div class="card p-6">
+                    <div class="text-sm text-gray-500 font-semibold">
+                        PARTNER ACCOUNT
+                    </div>
+
+                    <h3 class="text-xl font-bold brand mt-4">
+                        NAZWAY Agent
+                    </h3>
+
+                    <p class="text-gray-500 text-sm mt-2">
+                        Official NAZYAN TRAVELS Partner Portal.
+                    </p>
+                </div>
+
+            </section>
+
+            <section class="card p-6 sm:p-8 mb-8">
+                <h3 class="text-lg font-extrabold brand mb-6">
+                    My Profile
+                </h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+                    <div>
+                        <p class="text-xs text-gray-400 font-bold uppercase">
+                            Full Name
+                        </p>
+                        <p id="profileName" class="text-gray-800 font-semibold mt-2 break-words">
+                            -
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class="text-xs text-gray-400 font-bold uppercase">
+                            Email Address
+                        </p>
+                        <p id="profileEmail" class="text-gray-800 font-semibold mt-2 break-words">
+                            -
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class="text-xs text-gray-400 font-bold uppercase">
+                            Phone Number
+                        </p>
+                        <p id="profilePhone" class="text-gray-800 font-semibold mt-2 break-words">
+                            -
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class="text-xs text-gray-400 font-bold uppercase">
+                            Account Type
+                        </p>
+                        <p class="text-gray-800 font-semibold mt-2">
+                            Affiliate Agent
+                        </p>
+                    </div>
+
+                </div>
+            </section>
+
+            <section class="card p-6 sm:p-8">
+                <h3 class="text-lg font-extrabold brand">
+                    Partner Services
+                </h3>
+
+                <p class="text-gray-500 text-sm mt-2">
+                    Your partner services and business tools will be available here.
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+
+                    <div class="border border-gray-200 rounded-xl p-5">
+                        <div class="text-2xl mb-3">✈️</div>
+                        <h4 class="font-bold brand">Flight Tickets</h4>
+                        <p class="text-sm text-gray-500 mt-2">
+                            Flight booking services for your customers.
+                        </p>
+                        <span class="text-xs text-amber-700 font-semibold mt-3 inline-block">
+                            Coming Soon
+                        </span>
+                    </div>
+
+                    <div class="border border-gray-200 rounded-xl p-5">
+                        <div class="text-2xl mb-3">🌍</div>
+                        <h4 class="font-bold brand">Tour Packages</h4>
+                        <p class="text-sm text-gray-500 mt-2">
+                            Tour and holiday package services.
+                        </p>
+                        <span class="text-xs text-amber-700 font-semibold mt-3 inline-block">
+                            Coming Soon
+                        </span>
+                    </div>
+
+                    <div class="border border-gray-200 rounded-xl p-5">
+                        <div class="text-2xl mb-3">🕋</div>
+                        <h4 class="font-bold brand">Umrah Packages</h4>
+                        <p class="text-sm text-gray-500 mt-2">
+                            Umrah travel services.
+                        </p>
+                        <span class="text-xs text-amber-700 font-semibold mt-3 inline-block">
+                            Coming Soon
+                        </span>
+                    </div>
+
+                    <div class="border border-gray-200 rounded-xl p-5">
+                        <div class="text-2xl mb-3">📄</div>
+                        <h4 class="font-bold brand">Visa Services</h4>
+                        <p class="text-sm text-gray-500 mt-2">
+                            Visa and document assistance.
+                        </p>
+                        <span class="text-xs text-amber-700 font-semibold mt-3 inline-block">
+                            Coming Soon
+                        </span>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <footer class="text-center text-xs text-gray-400 py-8">
+        © 2026 NAZYAN TRAVELS & TOURS. All rights reserved.
+    </footer>
+
+    <script type="module">
+        import {
+            initializeApp
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+
+        import {
+            getAuth,
+            onAuthStateChanged,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        import {
+            getFirestore,
+            doc,
+            getDoc
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCCrmQBOFUNoUf6xv1q48MYhbOHL22JJig",
+            authDomain: "nazway-7d9f4.firebaseapp.com",
+            projectId: "nazway-7d9f4",
+            storageBucket: "nazway-7d9f4.firebasestorage.app",
+            messagingSenderId: "993042222919",
+            appId: "1:993042222919:web:3c0fab205ede2443f38662",
+            measurementId: "G-1NGSFBVMX6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const loadingBox = document.getElementById("loadingBox");
+        const errorBox = document.getElementById("errorBox");
+        const dashboardContent = document.getElementById("dashboardContent");
+
+        const agentName = document.getElementById("agentName");
+        const profileName = document.getElementById("profileName");
+        const profileEmail = document.getElementById("profileEmail");
+        const profilePhone = document.getElementById("profilePhone");
+        const statusBadge = document.getElementById("statusBadge");
+
+        function showError(title, message) {
+            loadingBox.classList.add("hidden");
+            dashboardContent.classList.add("hidden");
+            errorBox.classList.remove("hidden");
+
+            document.getElementById("errorTitle").textContent = title;
+            document.getElementById("errorMessage").textContent = message;
+        }
+
+        async function logoutUser() {
+            try {
+                await signOut(auth);
+                window.location.replace("index.html");
+            } catch (error) {
+                alert("Logout failed: " + error.message);
+            }
+        }
+
+        document.getElementById("logoutBtn").addEventListener("click", logoutUser);
+        document.getElementById("errorLogoutBtn").addEventListener("click", logoutUser);
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.replace("index.html");
+                return;
+            }
+
+            try {
+                const agentRef = doc(db, "agents", user.uid);
+                const agentSnap = await getDoc(agentRef);
+
+                if (!agentSnap.exists()) {
+                    await signOut(auth);
+                    window.location.replace("index.html");
+                    return;
+                }
+
+                const agentData = agentSnap.data();
+
+                if (agentData.role === "admin") {
+                    window.location.replace("admin.html");
+                    return;
+                }
+
+                if (agentData.role !== "agent") {
+                    await signOut(auth);
+                    window.location.replace("index.html");
+                    return;
+                }
+
+                if (agentData.status !== "approved") {
+                    loadingBox.classList.add("hidden");
+                    dashboardContent.classList.add("hidden");
+                    errorBox.classList.remove("hidden");
+
+                    if (agentData.status === "pending") {
+                        showError(
+                            "Approval Pending",
+                            "Your partner account is waiting for admin approval. Please try again later."
+                        );
+                    } else if (agentData.status === "rejected") {
+                        showError(
+                            "Account Not Approved",
+                            "Your partner account has not been approved. Please contact NAZYAN TRAVELS."
+                        );
+                    } else {
+                        showError(
+                            "Account Status Unavailable",
+                            "Your account status could not be verified. Please contact NAZYAN TRAVELS."
+                        );
+                    }
+
+                    return;
+                }
+
+                const name = agentData.name || "Agent";
+                const email = agentData.email || user.email || "Not available";
+                const phone = agentData.phone || "Not available";
+
+                agentName.textContent = name;
+                profileName.textContent = name;
+                profileEmail.textContent = email;
+                profilePhone.textContent = phone;
+
+                statusBadge.textContent = "APPROVED";
+                statusBadge.className =
+                    "inline-block px-4 py-2 rounded-full text-sm font-bold bg-green-100 text-green-700";
+
+                loadingBox.classList.add("hidden");
+                errorBox.classList.add("hidden");
+                dashboardContent.classList.remove("hidden");
+
+            } catch (error) {
+                console.error("NAZWAY Dashboard Error:", error);
+
+                showError(
+                    "Unable to Load Dashboard",
+                    "Please check your internet connection and try again. If the problem continues, contact NAZYAN TRAVELS."
+                );
+            }
+        });
+    </script>
+
+</body>
+</html>
