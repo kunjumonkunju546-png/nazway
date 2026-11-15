@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NazWay - Partner Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4">
+
+    <!-- Main Container -->
+    <div class="w-full max-w-md bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
+        
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-center">
+            <h1 class="text-2xl font-bold tracking-wider text-white">NAZWAY</h1>
+            <p class="text-blue-200 text-xs mt-1 uppercase tracking-widest">Exclusive Partner Network</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex border-b border-slate-700">
+            <button id="loginTab" onclick="switchTab('login')" class="w-1/2 py-3 text-sm font-semibold text-blue-400 border-b-2 border-blue-500 transition">
+                Partner Login
+            </button>
+            <button id="registerTab" onclick="switchTab('register')" class="w-1/2 py-3 text-sm font-semibold text-slate-400 hover:text-slate-200 transition">
+                New Registration
+            </button>
+        </div>
+
+        <!-- Alert Message Box -->
+        <div id="alertBox" class="hidden mx-6 mt-4 p-3 rounded-lg text-sm font-medium"></div>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="p-6 space-y-4">
+            <div>
+                <label class="block text-xs font-medium text-slate-400 uppercase mb-1">Email Address</label>
+                <input type="email" id="loginEmail" required placeholder="partner@example.com"
+                    class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-blue-500">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-400 uppercase mb-1">Password</label>
+                <input type="password" id="loginPassword" required placeholder="••••••••"
+                    class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-blue-500">
+            </div>
+            <button type="submit" id="loginBtn"
+                class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg transition duration-200">
+                Access Portal
+            </button>
+        </form>
+
+        <!-- Register Form -->
+        <form id="registerForm" class="p-6 space-y-4 hidden">
+            <div>
+                <label class="block text-xs font-medium text-slate-400 uppercase mb-1">Full Name</label>
+                <input type="text" id="regName" required placeholder="Enter your full name"
+                    class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-blue-500">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-400 uppercase mb-1">WhatsApp Number</label>
+                <input type="tel" id="regPhone" required placeholder="+91 9876543210"
+                    class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-blue-500">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-400 uppercase mb-1">Email Address</label>
+                <input type="email" id="regEmail" required placeholder="partner@example.com"
+                    class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-blue-500">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-400 uppercase mb-1">Create Password</label>
+                <input type="password" id="regPassword" required placeholder="Min 6 characters" minlength="6"
+                    class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-blue-500">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-amber-400 uppercase mb-1">Invite Code (Mandatory)</label>
+                <input type="text" id="regInvite" required placeholder="Enter code from Admin"
+                    class="w-full px-4 py-2.5 bg-slate-900 border border-amber-500/50 rounded-lg text-white focus:outline-none focus:border-amber-500">
+            </div>
+            <button type="submit" id="regBtn"
+                class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-lg transition duration-200">
+                Submit Application
+            </button>
+        </form>
+
+        <!-- Footer -->
+        <div class="bg-slate-900/50 p-4 text-center border-t border-slate-700/50">
+            <p class="text-xs text-slate-500">Invite-Only System • Unauthorized access prohibited</p>
+        </div>
+    </div>
+
+    <!-- UI Switching Script -->
+    <script>
+        function switchTab(tab) {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const loginTab = document.getElementById('loginTab');
+            const registerTab = document.getElementById('registerTab');
+            const alertBox = document.getElementById('alertBox');
+            
+            alertBox.classList.add('hidden');
+
+            if (tab === 'login') {
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+                loginTab.className = "w-1/2 py-3 text-sm font-semibold text-blue-400 border-b-2 border-blue-500 transition";
+                registerTab.className = "w-1/2 py-3 text-sm font-semibold text-slate-400 hover:text-slate-200 transition";
+            } else {
+                loginForm.classList.add('hidden');
+                registerForm.classList.remove('hidden');
+                registerTab.className = "w-1/2 py-3 text-sm font-semibold text-indigo-400 border-b-2 border-indigo-500 transition";
+                loginTab.className = "w-1/2 py-3 text-sm font-semibold text-slate-400 hover:text-slate-200 transition";
+            }
+        }
+
+        function showAlert(message, type) {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.textContent = message;
+            alertBox.classList.remove('hidden', 'bg-red-500/20', 'text-red-300', 'border-red-500/50', 'bg-emerald-500/20', 'text-emerald-300', 'border-emerald-500/50');
+            
+            if (type === 'error') {
+                alertBox.classList.add('bg-red-500/20', 'text-red-300', 'border', 'border-red-500/50');
+            } else {
+                alertBox.classList.add('bg-emerald-500/20', 'text-emerald-300', 'border', 'border-emerald-500/50');
+            }
+        }
+    </script>
+
+    <!-- Firebase Integration Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Your NazWay Firebase Configuration (Corrected)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCCrmQBOFUNoUf6xv1q48MYhbOHL22JJig",
+            authDomain: "nazway-7d9f4.firebaseapp.com",
+            projectId: "nazway-7d9f4",
+            storageBucket: "nazway-7d9f4.firebasestorage.app",
+            messagingSenderId: "993042222919",
+            appId: "1:993042222919:web:3c0fab205ede2443f38662",
+            measurementId: "G-1NGSFBVMX6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Secret Invite Code
+        const SECRET_INVITE_CODE = "NAZ2026";
+
+        // Handle Registration
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('regBtn');
+            const name = document.getElementById('regName').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const invite = document.getElementById('regInvite').value.trim();
+
+            if (invite !== SECRET_INVITE_CODE) {
+                showAlert("Invalid Invite Code! Please contact Admin on WhatsApp.", "error");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = "Creating Account...";
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                await setDoc(doc(db, "agents", user.uid), {
+                    name: name,
+                    phone: phone,
+                    email: email,
+                    role: "agent",
+                    status: "pending",
+                    createdAt: new Date().toISOString()
+                });
+
+                showAlert("Registration successful! Your account is pending Admin approval.", "success");
+                document.getElementById('registerForm').reset();
+            } catch (error) {
+                showAlert(error.message, "error");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Submit Application";
+            }
+        });
+
+        // Handle Login
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            btn.disabled = true;
+            btn.textContent = "Verifying...";
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                const docRef = doc(db, "agents", user.uid);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.role === "admin") {
+                        showAlert("Welcome Admin! Redirecting to Admin Panel...", "success");
+                        setTimeout(() => { window.location.href = "admin.html"; }, 1500);
+                    } else if (data.status === "approved") {
+                        showAlert("Login Successful! Opening Partner Dashboard...", "success");
+                        setTimeout(() => { window.location.href = "dashboard.html"; }, 1500);
+                    } else {
+                        showAlert("Your account is still under review. Admin will approve soon.", "error");
+                    }
+                } else {
+                    showAlert("User profile not found in database.", "error");
+                }
+            } catch (error) {
+    console.error("NazWay Login Error:", error);
+
+    showAlert(
+        "Error: " + (error.code || "unknown") + " - " + error.message,
+        "error"
+    );
+
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Access Portal";
+            }
+        });
+    </script>
+</body>
+</html>
