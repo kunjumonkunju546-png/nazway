@@ -147,7 +147,13 @@ getAuth,onAuthStateChanged,signOut
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 import {
-getFirestore,doc,getDoc,getDocs,collection,updateDoc
+getFirestore,
+doc,
+getDoc,
+getDocs,
+collection,
+updateDoc,
+writeBatch
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig={
@@ -882,40 +888,128 @@ renderBookings();
 
 };
 
-// CHANGE BOOKING STATUS
-window.changeBookingStatus=async(bookingId,newStatus)=>{
+// CHANGE BOOKING STATUS + CREATE AGENT NOTIFICATION
 
-if(!adminAccess){
-alert("Admin access required.");
-return;
-}
+window.changeBookingStatus = async (bookingId, newStatus) => {
 
-const booking=allBookings.find(b=>b.id===bookingId);
+  if (!adminAccess) {
+    alert("Admin access required.");
+    return;
+  }
 
-if(!booking)return;
+  const booking = allBookings.find(b => b.id === bookingId);
 
-if(!confirm("Change booking status to "+newStatus.toUpperCase()+"?"))return;
+  if (!booking) {
+    alert("Booking not found.");
+    return;
+  }
 
-try{
+  const allowedStatuses = [
+    "new",
+    "processing",
+    "confirmed",
+    "rejected"
+  ];
 
-await updateDoc(doc(db,"flightBookings",bookingId),{
-status:newStatus,
-statusUpdatedAt:new Date().toISOString()
-});
+  if (!allowedStatuses.includes(newStatus)) {
+    alert("Invalid booking status.");
+    return;
+  }
 
-alert("Booking status updated successfully!");
+  const oldStatus = booking.status;
 
-await loadBookings();
+  if (oldStatus === newStatus) {
+    return;
+  }
 
-}catch(error){
+  if (!booking.agentId) {
+    alert("Agent ID is missing. Cannot send notification.");
+    return;
+  }
 
-console.error(error);
+  if (!confirm(
+    "Change booking status from " +
+    oldStatus.toUpperCase() +
+    " to " +
+    newStatus.toUpperCase() +
+    "?"
+  )) {
+    return;
+  }
 
-alert("Unable to update booking status. Check Security Rules.");
+  try {
 
-}
+    const batch = writeBatch(db);
+
+    const bookingRef = doc(db, "flightBookings", bookingId);
+
+    const notificationRef = doc(collection(db, "notifications"));
+
+    const now = new Date().toISOString();
+
+    const title = "Flight Booking Status Updated";
+
+    const message =
+      "Your flight booking from " +
+      (booking.from || "Unknown") +
+      " to " +
+      (booking.to || "Unknown") +
+      " has been changed from " +
+      oldStatus.toUpperCase() +
+      " to " +
+      newStatus.toUpperCase() +
+      ".";
+
+    // Update booking status
+    batch.update(bookingRef, {
+      status: newStatus,
+      statusUpdatedAt: now
+    });
+
+    // Create notification for the booking owner
+    batch.set(notificationRef, {
+
+      agentId: booking.agentId,
+
+      bookingId: bookingId,
+
+      title: title,
+
+      message: message,
+
+      oldStatus: oldStatus,
+
+      newStatus: newStatus,
+
+      type: "booking_status",
+
+      createdAt: now,
+
+      isRead: false,
+
+      readAt: null
+
+    });
+
+    // Both operations happen together
+    await batch.commit();
+
+    alert("Booking updated and agent notification sent successfully!");
+
+    await loadBookings();
+
+  } catch (error) {
+
+    console.error("Booking Status / Notification Error:", error);
+
+    alert(
+      "Unable to update booking or send notification.\n\n" +
+      error.message
+    );
+
+  }
+
 };
-
 // REFRESH BUTTONS
 document.getElementById("refreshBtn").addEventListener("click",loadAgents);
 
