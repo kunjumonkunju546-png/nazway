@@ -16,28 +16,42 @@
   --gold:#c9a23b;
 }
 * { box-sizing:border-box; }
+
 body {
   margin:0;
   font-family:Inter,sans-serif;
   background:#f4f7f8;
   color:#183744;
 }
+
 .topbar {
   background:linear-gradient(105deg,#00372f,#005448);
 }
+
+.brand-logo {
+  width:160px;
+  max-height:68px;
+  object-fit:contain;
+  background:#fff;
+  border-radius:10px;
+  padding:5px;
+}
+
 .hero {
   min-height:235px;
   background:
     linear-gradient(90deg,rgba(255,255,255,.94),rgba(255,255,255,.65),rgba(255,255,255,.05)),
-    url("assets/hero-travel.jpg") center/cover;
+    url("asset/hero-travel.jpg") center/cover;
   border-bottom:7px solid var(--gold);
 }
+
 .section-title {
   color:var(--green);
   border-left:6px solid var(--gold);
   padding-left:14px;
   font-weight:800;
 }
+
 .service-card {
   position:relative;
   min-height:250px;
@@ -47,7 +61,9 @@ body {
   box-shadow:0 7px 16px rgba(0,44,37,.18);
   text-align:left;
   cursor:pointer;
+  width:100%;
 }
+
 .service-card img {
   position:absolute;
   inset:0;
@@ -55,7 +71,13 @@ body {
   height:100%;
   object-fit:cover;
   z-index:0;
+  transition:transform .4s ease;
 }
+
+.service-card:hover img {
+  transform:scale(1.05);
+}
+
 .service-card:after {
   content:"";
   position:absolute;
@@ -63,6 +85,7 @@ body {
   background:linear-gradient(transparent,rgba(0,47,41,.96));
   z-index:1;
 }
+
 .service-bottom {
   position:absolute;
   z-index:2;
@@ -71,6 +94,7 @@ body {
   right:16px;
   color:white;
 }
+
 .account-card {
   display:flex;
   align-items:center;
@@ -83,7 +107,14 @@ body {
   background:white;
   text-align:left;
   box-shadow:0 4px 12px rgba(17,50,61,.08);
+  transition:transform .2s, box-shadow .2s;
 }
+
+.account-card:hover {
+  transform:translateY(-2px);
+  box-shadow:0 7px 18px rgba(17,50,61,.13);
+}
+
 .account-icon {
   width:48px;
   height:48px;
@@ -95,6 +126,7 @@ body {
   font-size:23px;
   flex-shrink:0;
 }
+
 .modal-backdrop {
   display:none;
   position:fixed;
@@ -105,7 +137,11 @@ body {
   justify-content:center;
   padding:18px;
 }
-.modal-backdrop.show { display:flex; }
+
+.modal-backdrop.show {
+  display:flex;
+}
+
 .modal-panel {
   width:100%;
   max-width:550px;
@@ -114,6 +150,7 @@ body {
   background:white;
   border-radius:20px;
 }
+
 .modal-head {
   background:var(--green);
   color:white;
@@ -122,44 +159,73 @@ body {
   justify-content:space-between;
   align-items:center;
 }
-.modal-body { padding:22px; }
+
+.modal-body {
+  padding:22px;
+}
+
 .detail-row {
   padding:13px 0;
   border-bottom:1px solid #e9eef0;
 }
+
 .detail-label {
   font-size:11px;
   color:#81909a;
   font-weight:800;
   text-transform:uppercase;
 }
+
 .detail-value {
   margin-top:5px;
   font-weight:600;
   overflow-wrap:anywhere;
 }
+
 .footer {
   background:linear-gradient(105deg,#00372f,#004b40);
   color:white;
   border-top:7px solid var(--gold);
 }
+
 @media(max-width:640px) {
-  .hero { min-height:205px; background-position:57% center; }
-  .service-card { min-height:220px; }
+  .hero {
+    min-height:205px;
+    background-position:57% center;
+  }
+
+  .service-card {
+    min-height:220px;
+  }
+
+  .brand-logo {
+    width:125px;
+    max-height:58px;
+  }
 }
 </style>
 </head>
 
 <body>
 
+<!-- HEADER -->
 <header class="topbar text-white shadow-lg">
   <div class="max-w-[1600px] mx-auto px-4 sm:px-7 py-4 flex justify-between items-center gap-3">
 
-    <!-- YOUR OFFICIAL LOGO WILL BE ADDED HERE -->
-    <div>
-      <div class="text-2xl sm:text-3xl font-extrabold tracking-widest">NAZYAN</div>
-      <div class="text-xs text-yellow-200 font-bold tracking-widest">TRAVELS &amp; TOURS</div>
-      <div class="text-xs text-emerald-100 mt-1">Partner Portal</div>
+    <div class="flex items-center gap-3">
+      <img
+        src="nazyan-logo.jpg"
+        alt="NAZYAN TRAVELS Official Logo"
+        class="brand-logo"
+      >
+      <div>
+        <div class="text-xs sm:text-sm text-emerald-100 font-semibold">
+          EXCLUSIVE
+        </div>
+        <div class="text-sm sm:text-base font-extrabold tracking-wide">
+          PARTNER PORTAL
+        </div>
+      </div>
     </div>
 
     <div class="flex items-center gap-3">
@@ -167,6 +233,7 @@ body {
         <div id="headerAgentName" class="font-semibold">Partner</div>
         <div class="text-xs text-emerald-100">Partner Account</div>
       </div>
+
       <button id="logoutBtn" type="button"
         class="bg-white text-green-900 px-4 py-2 rounded-xl text-sm font-bold">
         Logout
@@ -177,14 +244,17 @@ body {
 
 <main class="max-w-[1600px] mx-auto px-3 sm:px-5 py-5">
 
+  <!-- LOADING -->
   <div id="loadingBox" class="bg-white rounded-2xl p-8 text-center shadow">
     <h2 class="text-lg font-bold text-green-900">Loading Dashboard...</h2>
     <p class="text-gray-500 text-sm mt-2">Please wait...</p>
   </div>
 
+  <!-- ERROR -->
   <div id="errorBox" class="hidden bg-white rounded-2xl p-8 text-center shadow">
     <h2 id="errorTitle" class="text-xl font-bold text-red-600">Account Error</h2>
     <p id="errorMessage" class="text-gray-600 mt-3"></p>
+
     <button id="errorLogoutBtn" type="button"
       class="mt-6 bg-green-900 text-white px-6 py-3 rounded-xl font-bold">
       Logout
@@ -197,82 +267,111 @@ body {
     <section class="hero rounded-2xl shadow-md flex items-center px-6 sm:px-11 py-7 mb-7">
       <div class="max-w-xl">
         <h1 class="text-3xl sm:text-5xl font-extrabold text-green-900">
-          Welcome, <span id="agentName" class="text-yellow-700">Partner</span>!
+          Welcome,
+          <span id="agentName" class="text-yellow-700">Partner</span>!
         </h1>
+
         <div class="flex flex-wrap items-center gap-3 mt-4">
           <span id="statusBadge"
             class="bg-emerald-600 text-white px-4 py-2 rounded-full text-sm font-bold">
             ✓ APPROVED
           </span>
+
           <span class="font-bold text-green-900">Partner Account</span>
         </div>
+
         <p class="italic font-semibold text-green-900 mt-3">
           Your Journey, Our Care
         </p>
       </div>
     </section>
 
-    <!-- FOUR MAIN SERVICES -->
+    <!-- PARTNER SERVICES -->
     <section class="mb-8">
       <div class="flex items-center justify-between mb-5">
-        <h2 class="section-title text-2xl sm:text-3xl">Partner Services</h2>
-        <span class="hidden sm:block text-green-900 italic font-semibold">Book · Travel · Earn</span>
+        <h2 class="section-title text-2xl sm:text-3xl">
+          Partner Services
+        </h2>
+
+        <span class="hidden sm:block text-green-900 italic font-semibold">
+          Book · Travel · Earn
+        </span>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
 
+        <!-- FLIGHT -->
         <button type="button" class="service-card"
           data-service="Flight Tickets"
           data-description="Flight booking service is being prepared.">
-          <img src="assets/flight.jpg" alt="Flight Tickets">
+
+          <img src="asset/flight.jpg" alt="Flight Tickets">
+
           <span class="service-bottom flex items-end gap-3">
             <span class="text-3xl">✈</span>
+
             <span class="flex-1">
               <span class="block text-xl font-extrabold">Flight Tickets</span>
               <span class="block text-sm mt-1">Book Flight Tickets</span>
             </span>
+
             <span class="text-3xl text-yellow-300">›</span>
           </span>
         </button>
 
+        <!-- TOUR -->
         <button type="button" class="service-card"
           data-service="Tour Packages"
           data-description="Tour and holiday package service is being prepared.">
-          <img src="assets/tour.jpg" alt="Tour Packages">
+
+          <img src="asset/tour.jpg" alt="Tour Packages">
+
           <span class="service-bottom flex items-end gap-3">
             <span class="text-3xl">🌍</span>
+
             <span class="flex-1">
               <span class="block text-xl font-extrabold">Tour Packages</span>
               <span class="block text-sm mt-1">Explore Amazing Tours</span>
             </span>
+
             <span class="text-3xl text-yellow-300">›</span>
           </span>
         </button>
 
+        <!-- UMRAH -->
         <button type="button" class="service-card"
           data-service="Umrah Packages"
           data-description="Umrah package service is being prepared.">
-          <img src="assets/umrah.jpg" alt="Umrah Packages">
+
+          <img src="asset/umrah.jpg" alt="Umrah Packages">
+
           <span class="service-bottom flex items-end gap-3">
             <span class="text-3xl">🕋</span>
+
             <span class="flex-1">
               <span class="block text-xl font-extrabold">Umrah Packages</span>
               <span class="block text-sm mt-1">Plan Your Umrah</span>
             </span>
+
             <span class="text-3xl text-yellow-300">›</span>
           </span>
         </button>
 
+        <!-- VISA -->
         <button type="button" class="service-card"
           data-service="Visa Services"
           data-description="Visa and document assistance service is being prepared.">
-          <img src="assets/visa.jpg" alt="Visa Services">
+
+          <img src="asset/visa.jpg" alt="Visa Services">
+
           <span class="service-bottom flex items-end gap-3">
             <span class="text-3xl">📄</span>
+
             <span class="flex-1">
               <span class="block text-xl font-extrabold">Visa Services</span>
               <span class="block text-sm mt-1">Get Your Visa</span>
             </span>
+
             <span class="text-3xl text-yellow-300">›</span>
           </span>
         </button>
@@ -280,9 +379,11 @@ body {
       </div>
     </section>
 
-    <!-- AGENT ACCOUNT MENU -->
+    <!-- PARTNER ACCOUNT -->
     <section class="mb-7">
-      <h2 class="section-title text-2xl sm:text-3xl mb-5">Partner Account</h2>
+      <h2 class="section-title text-2xl sm:text-3xl mb-5">
+        Partner Account
+      </h2>
 
       <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
 
@@ -342,31 +443,42 @@ body {
 
       </div>
     </section>
+
   </div>
 </main>
 
+<!-- FOOTER -->
 <footer class="footer text-center py-5 px-3">
   <div class="text-sm font-semibold tracking-wider">
     NAZYAN TRAVELS &amp; TOURS
     <span class="mx-2 text-yellow-300">|</span>
     <span class="italic">Your Journey, Our Care</span>
   </div>
-  <div class="text-xs text-emerald-100 mt-2">© 2026 All rights reserved.</div>
+
+  <div class="text-xs text-emerald-100 mt-2">
+    © 2026 All rights reserved.
+  </div>
 </footer>
 
 <!-- POPUP WINDOW -->
 <div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true">
   <div class="modal-panel">
+
     <div class="modal-head">
       <h2 id="modalTitle" class="text-xl font-extrabold">Details</h2>
-      <button id="closeModalBtn" type="button" class="text-3xl">×</button>
+
+      <button id="closeModalBtn" type="button" class="text-3xl">
+        ×
+      </button>
     </div>
+
     <div id="modalBody" class="modal-body"></div>
   </div>
 </div>
 
 <!-- FIREBASE -->
 <script type="module">
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 
 import {
@@ -380,6 +492,7 @@ import {
   doc,
   getDoc
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyCCrmQBOFUNoUf6xv1q48MYhbOHL22JJig",
@@ -402,13 +515,16 @@ const modalBackdrop = document.getElementById("modalBackdrop");
 
 let currentAgent = null;
 
+
 function showError(title, message) {
   loadingBox.classList.add("hidden");
   dashboardContent.classList.add("hidden");
   errorBox.classList.remove("hidden");
+
   document.getElementById("errorTitle").textContent = title;
   document.getElementById("errorMessage").textContent = message;
 }
+
 
 async function logoutUser() {
   try {
@@ -419,30 +535,40 @@ async function logoutUser() {
   }
 }
 
+
 document.getElementById("logoutBtn").addEventListener("click", logoutUser);
 document.getElementById("errorLogoutBtn").addEventListener("click", logoutUser);
+
 
 function openModal(title, html) {
   document.getElementById("modalTitle").textContent = title;
   document.getElementById("modalBody").innerHTML = html;
+
   modalBackdrop.classList.add("show");
   document.body.style.overflow = "hidden";
 }
+
 
 function closeModal() {
   modalBackdrop.classList.remove("show");
   document.body.style.overflow = "";
 }
 
+
 document.getElementById("closeModalBtn").addEventListener("click", closeModal);
 
 modalBackdrop.addEventListener("click", event => {
-  if(event.target === modalBackdrop) closeModal();
+  if(event.target === modalBackdrop) {
+    closeModal();
+  }
 });
 
 document.addEventListener("keydown", event => {
-  if(event.key === "Escape") closeModal();
+  if(event.key === "Escape") {
+    closeModal();
+  }
 });
+
 
 function safeText(value) {
   return String(value ?? "Not available").replace(/[&<>"']/g, char => ({
@@ -454,6 +580,7 @@ function safeText(value) {
   }[char]));
 }
 
+
 function detail(label, value) {
   return `
     <div class="detail-row">
@@ -463,104 +590,153 @@ function detail(label, value) {
   `;
 }
 
-/* MY PROFILE / BOOKINGS / COMMISSION */
+
+/* PARTNER ACCOUNT MENU */
 
 document.querySelectorAll("[data-panel]").forEach(button => {
+
   button.addEventListener("click", () => {
+
     if(!currentAgent) return;
 
     const panel = button.dataset.panel;
 
     if(panel === "profile") {
-      openModal("My Profile",
+
+      openModal(
+        "My Profile",
+
         detail("Full Name", currentAgent.name) +
         detail("Email Address", currentAgent.email) +
         detail("Phone Number", currentAgent.phone) +
         detail("Account Type", "Affiliate Agent") +
         detail("Account Status", "Approved")
       );
+
       return;
     }
 
+
     const sections = {
+
       bookings: [
         "My Bookings",
         "Your booking history will appear here after the booking system is connected."
       ],
+
       commission: [
         "My Commission",
         "Your confirmed, pending and paid commission details will appear here after the commission module is connected."
       ],
+
       payments: [
         "Payment History",
         "Your commission payment records will appear here after the payment module is connected."
       ],
+
       notifications: [
         "Notifications",
         "There are no new notifications at the moment."
       ],
+
       support: [
         "Support",
-        "For assistance, please contact NAZYAN TRAVELS through the official support contact."
+        "For assistance, please contact NAZYAN TRAVELS at naz yantravels@gmail.com."
       ]
+
     };
 
     const info = sections[panel];
-    openModal(info[0], `<p class="text-gray-600 leading-relaxed">${info[1]}</p>`);
+
+    if(!info) return;
+
+    openModal(
+      info[0],
+      `<p class="text-gray-600 leading-relaxed">${info[1]}</p>`
+    );
+
   });
+
 });
+
 
 /* SERVICE BUTTONS */
 
 document.querySelectorAll("[data-service]").forEach(button => {
+
   button.addEventListener("click", () => {
+
     openModal(
       button.dataset.service,
+
       `<p class="text-gray-600 leading-relaxed">${button.dataset.description}</p>
-       <p class="text-sm text-amber-700 font-semibold mt-4">Booking feature is being prepared.</p>`
+       <p class="text-sm text-amber-700 font-semibold mt-4">
+         Booking feature is being prepared.
+       </p>`
     );
+
   });
+
 });
+
 
 /* CHECK USER LOGIN AND APPROVAL */
 
 onAuthStateChanged(auth, async user => {
+
   if(!user) {
     window.location.replace("index.html");
     return;
   }
 
   try {
+
     const agentSnap = await getDoc(doc(db, "agents", user.uid));
 
     if(!agentSnap.exists()) {
+
       await signOut(auth);
       window.location.replace("index.html");
       return;
+
     }
 
     const data = agentSnap.data();
 
+
     if(data.role === "admin") {
+
       window.location.replace("admin.html");
       return;
+
     }
 
+
     if(data.role !== "agent") {
+
       await signOut(auth);
       window.location.replace("index.html");
       return;
+
     }
 
+
     if(data.status !== "approved") {
+
       showError(
-        data.status === "pending" ? "Approval Pending" : "Account Not Approved",
+        data.status === "pending"
+          ? "Approval Pending"
+          : "Account Not Approved",
+
         data.status === "pending"
           ? "Your partner account is waiting for admin approval. Please try again later."
           : "Your partner account has not been approved. Please contact NAZYAN TRAVELS."
       );
+
       return;
+
     }
+
 
     currentAgent = {
       name: data.name || "Agent",
@@ -568,22 +744,32 @@ onAuthStateChanged(auth, async user => {
       phone: data.phone || "Not available"
     };
 
+
     document.getElementById("agentName").textContent = currentAgent.name;
+
     document.getElementById("headerAgentName").textContent = currentAgent.name;
+
     document.getElementById("statusBadge").textContent = "✓ APPROVED";
+
 
     loadingBox.classList.add("hidden");
     errorBox.classList.add("hidden");
     dashboardContent.classList.remove("hidden");
 
+
   } catch(error) {
+
     console.error("NAZWAY Dashboard Error:", error);
+
     showError(
       "Unable to Load Dashboard",
       "Please check your internet connection and try again. If the problem continues, contact NAZYAN TRAVELS."
     );
+
   }
+
 });
+
 </script>
 
 </body>
