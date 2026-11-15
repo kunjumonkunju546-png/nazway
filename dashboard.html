@@ -605,7 +605,10 @@ import {
   doc,
   getDoc,
   collection,
-  addDoc
+  addDoc,
+  getDocs,
+  query,
+  where
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -960,6 +963,196 @@ function openFlightRequest() {
     });
 
 }
+  /* MY BOOKINGS */
+
+function formatBookingDate(value) {
+  if (!value) return "Not available";
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) return String(value);
+
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  });
+}
+
+function openBookingDetails(booking) {
+  const passengers =
+    Number(booking.adults || 0) +
+    Number(booking.children || 0) +
+    Number(booking.infants || 0);
+
+  openModal("Booking Details",
+    detail("Booking ID", booking.id) +
+    detail("Service", "Flight") +
+    detail("Status", booking.status || "new") +
+    detail("Trip Type", booking.tripType || "Not available") +
+    detail("From", booking.from) +
+    detail("To", booking.to) +
+    detail("Departure Date", formatBookingDate(booking.departureDate)) +
+    detail("Return Date",
+      booking.returnDate
+        ? formatBookingDate(booking.returnDate)
+        : "Not applicable") +
+    detail("Adults", booking.adults) +
+    detail("Children", booking.children) +
+    detail("Infants", booking.infants) +
+    detail("Total Passengers", passengers) +
+    detail("Requirements", booking.requirements || "None") +
+    detail("Created At", formatBookingDate(booking.createdAt))
+  );
+}
+
+async function openMyBookings() {
+
+  openModal("My Bookings", `
+    <div class="text-center py-8">
+      <p class="text-slate-500 text-sm">Loading your bookings...</p>
+    </div>
+  `);
+
+  try {
+
+    if (!currentAgent || !currentAgent.uid) {
+      throw new Error("Agent account not available.");
+    }
+
+    const bookingsQuery = query(
+      collection(db, "flightBookings"),
+      where("agentId", "==", currentAgent.uid)
+    );
+
+    const snapshot = await getDocs(bookingsQuery);
+
+    const bookings = snapshot.docs.map(item => ({
+      id: item.id,
+      ...item.data()
+    }));
+
+    bookings.sort((a, b) =>
+      String(b.createdAt || "").localeCompare(
+        String(a.createdAt || "")
+      )
+    );
+
+    if (bookings.length === 0) {
+      document.getElementById("modalBody").innerHTML = `
+        <div class="text-center py-10">
+          <div class="text-4xl mb-3">✈</div>
+          <h3 class="font-bold text-slate-800">
+            No Bookings Yet
+          </h3>
+          <p class="text-sm text-slate-500 mt-2">
+            Your flight booking requests will appear here.
+          </p>
+        </div>
+      `;
+      return;
+    }
+
+    const bookingMap = new Map(
+      bookings.map(booking => [booking.id, booking])
+    );
+
+    document.getElementById("modalBody").innerHTML = `
+      <div class="mb-4 flex justify-between items-center">
+        <span class="text-sm text-slate-500">
+          Your Booking History
+        </span>
+        <span class="text-sm font-bold text-slate-700">
+          ${bookings.length} Booking(s)
+        </span>
+      </div>
+
+      <div class="space-y-3">
+        ${bookings.map(booking => `
+          <button
+            type="button"
+            data-booking-id="${safeText(booking.id)}"
+            class="w-full text-left border border-slate-200 rounded-xl p-4 bg-white hover:bg-slate-50 transition">
+
+            <div class="flex justify-between items-start gap-2">
+              <span class="text-xs font-bold text-slate-500">
+                FLIGHT BOOKING
+              </span>
+
+              <span class="text-xs font-bold px-2 py-1 rounded-full bg-slate-100 text-slate-700">
+                ${safeText(booking.status || "new")}
+              </span>
+            </div>
+
+            <div class="flex items-center gap-3 mt-3">
+              <div class="flex-1 min-w-0">
+                <div class="font-bold text-slate-800 break-words">
+                  ${safeText(booking.from)}
+                </div>
+                <div class="text-xs text-slate-500">From</div>
+              </div>
+
+              <div class="text-xl text-slate-400">→</div>
+
+              <div class="flex-1 min-w-0">
+                <div class="font-bold text-slate-800 break-words">
+                  ${safeText(booking.to)}
+                </div>
+                <div class="text-xs text-slate-500">To</div>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap justify-between gap-2 mt-4 pt-3 border-t border-slate-100">
+              <span class="text-xs text-slate-500">
+                ${safeText(booking.tripType || "Not available")}
+              </span>
+
+              <span class="text-xs text-slate-500">
+                ${safeText(formatBookingDate(booking.departureDate))}
+              </span>
+            </div>
+
+            <div class="text-xs font-semibold text-slate-600 mt-3">
+              View Booking Details →
+            </div>
+
+          </button>
+        `).join("")}
+      </div>
+    `;
+
+    document.querySelectorAll("[data-booking-id]").forEach(button => {
+
+      button.addEventListener("click", () => {
+
+        const booking = bookingMap.get(button.dataset.bookingId);
+
+        if (booking) {
+          openBookingDetails(booking);
+        }
+
+      });
+
+    });
+
+  } catch (error) {
+
+    console.error("My Bookings Error:", error);
+
+    document.getElementById("modalBody").innerHTML = `
+      <div class="text-center py-8">
+        <h3 class="font-bold text-red-600">
+          Unable to Load Bookings
+        </h3>
+        <p class="text-sm text-slate-500 mt-2">
+          Please try again. If the problem continues, contact support.
+        </p>
+      </div>
+    `;
+
+  }
+
+}
 /* PARTNER ACCOUNT MENU */
 
 document.querySelectorAll("[data-panel]").forEach(button => {
@@ -985,7 +1178,10 @@ document.querySelectorAll("[data-panel]").forEach(button => {
       return;
     }
 
-
+if (panel === "bookings") {
+  openMyBookings();
+  return;
+}
     const sections = {
 
       bookings: [
