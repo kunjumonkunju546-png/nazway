@@ -1,595 +1,544 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NazWay - Admin Dashboard</title>
-
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-        .nav-active {
-            background: #1e40af;
-            color: white;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NAZWAY - Admin Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+body{font-family:Arial,sans-serif}
+.nav-active{background:#1e40af;color:white}
+</style>
 </head>
 
 <body class="bg-slate-950 text-white min-h-screen">
 
-    <!-- HEADER -->
-    <header class="bg-slate-900 border-b border-slate-700 p-4">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div>
-                <h1 class="text-2xl font-bold text-blue-400">NAZWAY</h1>
-                <p class="text-xs text-slate-400">ADMIN CONTROL PANEL</p>
-            </div>
-
-            <button id="logoutBtn"
-                class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm hidden">
-                Logout
-            </button>
-        </div>
-    </header>
-
-    <!-- LOADING -->
-    <div id="loading" class="text-center py-16 text-slate-400">
-        Checking Admin Access...
-    </div>
-
-    <!-- ERROR -->
-    <div id="errorBox"
-        class="hidden max-w-xl mx-auto mt-10 bg-red-900/40 border border-red-600 p-5 rounded-xl">
-        <h2 class="font-bold text-red-300 mb-2">Access Denied</h2>
-        <p id="errorMessage" class="text-sm text-red-200"></p>
-        <button onclick="window.location.href='index.html'"
-            class="mt-4 bg-blue-600 px-4 py-2 rounded-lg">
-            Back to Login
-        </button>
-    </div>
-
-    <!-- ADMIN DASHBOARD -->
-    <main id="dashboard" class="hidden max-w-7xl mx-auto p-4 md:p-8">
-
-        <div class="mb-8">
-            <p class="text-sm text-slate-400">Welcome back,</p>
-            <h2 class="text-3xl font-bold mt-1">Admin Dashboard</h2>
-            <p class="text-slate-400 text-sm mt-2">
-                Nazyan Travels Affiliate Management
-            </p>
-        </div>
-
-        <!-- OFFICIAL CONTACT -->
-        <div class="bg-blue-900/30 border border-blue-800 rounded-xl p-4 mb-8">
-            <p class="text-xs text-blue-300 uppercase">Official Support Email</p>
-            <p class="font-semibold mt-1">
-                nazyantravels@gmail.com
-            </p>
-        </div>
-
-        <!-- STATISTICS -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-
-            <div class="bg-slate-900 border border-slate-700 rounded-xl p-5">
-                <p class="text-slate-400 text-sm">Total Agents</p>
-                <h3 id="totalCount" class="text-3xl font-bold mt-2">0</h3>
-            </div>
-
-            <div class="bg-slate-900 border border-amber-700/50 rounded-xl p-5">
-                <p class="text-amber-400 text-sm">Pending Applications</p>
-                <h3 id="pendingCount" class="text-3xl font-bold mt-2">0</h3>
-            </div>
-
-            <div class="bg-slate-900 border border-green-700/50 rounded-xl p-5">
-                <p class="text-green-400 text-sm">Approved Agents</p>
-                <h3 id="approvedCount" class="text-3xl font-bold mt-2">0</h3>
-            </div>
-
-        </div>
-
-        <!-- TABS -->
-        <div class="flex flex-wrap gap-2 mb-6">
-
-            <button onclick="showAgents('pending')" id="pendingTab"
-                class="nav-active px-4 py-3 rounded-lg text-sm">
-                Pending
-            </button>
-
-            <button onclick="showAgents('approved')" id="approvedTab"
-                class="bg-slate-800 px-4 py-3 rounded-lg text-sm">
-                Approved
-            </button>
-
-            <button onclick="showAgents('rejected')" id="rejectedTab"
-                class="bg-slate-800 px-4 py-3 rounded-lg text-sm">
-                Rejected
-            </button>
-
-            <button onclick="showAgents('all')" id="allTab"
-                class="bg-slate-800 px-4 py-3 rounded-lg text-sm">
-                All Agents
-            </button>
-
-        </div>
-
-        <!-- REFRESH -->
-        <div class="flex justify-between items-center mb-4">
-            <h3 id="listTitle" class="text-xl font-bold">
-                Pending Applications
-            </h3>
-
-            <button id="refreshBtn"
-                class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg text-sm">
-                Refresh
-            </button>
-        </div>
+<header class="bg-slate-900 border-b border-slate-700 p-4">
+<div class="max-w-7xl mx-auto flex justify-between items-center">
+<div>
+<h1 class="text-2xl font-bold text-blue-400">NAZWAY</h1>
+<p class="text-xs text-slate-400">ADMIN CONTROL PANEL</p>
+</div>
+<button id="logoutBtn" class="bg-red-600 px-4 py-2 rounded-lg text-sm hidden">Logout</button>
+</div>
+</header>
+
+<div id="loading" class="text-center py-16 text-slate-400">
+Checking Admin Access...
+</div>
+
+<div id="errorBox" class="hidden max-w-xl mx-auto mt-10 bg-red-900/40 border border-red-600 p-5 rounded-xl">
+<h2 class="font-bold text-red-300 mb-2">Access Denied</h2>
+<p id="errorMessage" class="text-sm text-red-200"></p>
+<button onclick="location.href='index.html'" class="mt-4 bg-blue-600 px-4 py-2 rounded-lg">Back to Login</button>
+</div>
+
+<main id="dashboard" class="hidden max-w-7xl mx-auto p-4 md:p-8">
+
+<div class="mb-8">
+<p class="text-sm text-slate-400">Welcome back,</p>
+<h2 class="text-3xl font-bold mt-1">Admin Dashboard</h2>
+<p class="text-slate-400 text-sm mt-2">Nazyan Travels Affiliate Management</p>
+</div>
+
+<div class="bg-slate-900 border border-slate-700 rounded-xl p-4 mb-8">
+<p class="text-xs text-blue-300 uppercase">Official Support Email</p>
+<p class="font-semibold mt-1">nazyantravels@gmail.com</p>
+</div>
+
+<!-- STATISTICS -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+<div class="bg-slate-900 border border-slate-700 rounded-xl p-5">
+<p class="text-slate-400 text-sm">Total Agents</p>
+<h3 id="totalCount" class="text-3xl font-bold mt-2">0</h3>
+</div>
+<div class="bg-slate-900 border border-amber-700/50 rounded-xl p-5">
+<p class="text-amber-400 text-sm">Pending Applications</p>
+<h3 id="pendingCount" class="text-3xl font-bold mt-2">0</h3>
+</div>
+<div class="bg-slate-900 border border-green-700/50 rounded-xl p-5">
+<p class="text-green-400 text-sm">Approved Agents</p>
+<h3 id="approvedCount" class="text-3xl font-bold mt-2">0</h3>
+</div>
+</div>
+
+<!-- MAIN SECTIONS -->
+<div class="flex flex-wrap gap-2 mb-6">
+<button onclick="showSection('agents')" id="agentsSectionTab" class="nav-active px-4 py-3 rounded-lg text-sm">Agent Management</button>
+<button onclick="showSection('bookings')" id="bookingsSectionTab" class="bg-slate-800 px-4 py-3 rounded-lg text-sm">Flight Bookings</button>
+</div>
+
+<!-- AGENT MANAGEMENT -->
+<section id="agentsSection">
+
+<div class="flex flex-wrap gap-2 mb-6">
+<button onclick="showAgents('pending')" id="pendingTab" class="nav-active px-4 py-3 rounded-lg text-sm">Pending</button>
+<button onclick="showAgents('approved')" id="approvedTab" class="bg-slate-800 px-4 py-3 rounded-lg text-sm">Approved</button>
+<button onclick="showAgents('rejected')" id="rejectedTab" class="bg-slate-800 px-4 py-3 rounded-lg text-sm">Rejected</button>
+<button onclick="showAgents('all')" id="allTab" class="bg-slate-800 px-4 py-3 rounded-lg text-sm">All Agents</button>
+</div>
+
+<div class="flex justify-between items-center mb-4">
+<h3 id="listTitle" class="text-xl font-bold">Pending Applications</h3>
+<button id="refreshBtn" class="bg-slate-700 px-4 py-2 rounded-lg text-sm">Refresh</button>
+</div>
+
+<div id="agentList" class="space-y-4">
+<p class="text-slate-400 text-center py-8">Loading agents...</p>
+</div>
+</section>
+
+<!-- FLIGHT BOOKINGS -->
+<section id="bookingsSection" class="hidden">
+
+<div class="flex flex-wrap gap-2 mb-6">
+<button onclick="showBookings('all')" id="bookingAllTab" class="nav-active px-4 py-3 rounded-lg text-sm">All Bookings</button>
+<button onclick="showBookings('new')" id="bookingNewTab" class="bg-slate-800 px-4 py-3 rounded-lg text-sm">New</button>
+<button onclick="showBookings('processing')" id="bookingProcessingTab" class="bg-slate-800 px-4 py-3 rounded-lg text-sm">Processing</button>
+<button onclick="showBookings('confirmed')" id="bookingConfirmedTab" class="bg-slate-800 px-4 py-3 rounded-lg text-sm">Confirmed</button>
+<button onclick="showBookings('rejected')" id="bookingRejectedTab" class="bg-slate-800 px-4 py-3 rounded-lg text-sm">Rejected</button>
+</div>
+
+<div class="flex justify-between items-center mb-4 gap-3">
+<h3 id="bookingTitle" class="text-xl font-bold">All Flight Bookings</h3>
+<button id="refreshBookingsBtn" class="bg-slate-700 px-4 py-2 rounded-lg text-sm">Refresh</button>
+</div>
+
+<div id="bookingList" class="space-y-4">
+<p class="text-slate-400 text-center py-8">Loading bookings...</p>
+</div>
+</section>
+
+<footer class="text-center text-slate-500 text-xs py-10">
+NazWay Affiliate Portal<br>NAZYAN TRAVELS
+</footer>
+
+</main>
+
+<script type="module">
+
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+
+import {
+getAuth,onAuthStateChanged,signOut
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+import {
+getFirestore,doc,getDoc,getDocs,collection,updateDoc
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig={
+apiKey:"AIzaSyCCrmQBOFUNoUf6xv1q48MYhbOHL22JJig",
+authDomain:"nazway-7d9f4.firebaseapp.com",
+projectId:"nazway-7d9f4",
+storageBucket:"nazway-7d9f4.firebasestorage.app",
+messagingSenderId:"993042222919",
+appId:"1:993042222919:web:3c0fab205ede2443f38662",
+measurementId:"G-1NGSFBVMX6"
+};
 
-        <!-- AGENT LIST -->
-        <div id="agentList" class="space-y-4">
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
 
-            <p class="text-slate-400 text-center py-8">
-                Loading agents...
-            </p>
+const loading=document.getElementById("loading");
+const dashboard=document.getElementById("dashboard");
+const errorBox=document.getElementById("errorBox");
+const errorMessage=document.getElementById("errorMessage");
+const logoutBtn=document.getElementById("logoutBtn");
+const agentList=document.getElementById("agentList");
+const bookingList=document.getElementById("bookingList");
 
-        </div>
+let allAgents=[];
+let allBookings=[];
+let currentFilter="pending";
+let currentBookingFilter="all";
+let adminAccess=false;
+
+function escapeHTML(value){
+return String(value??"").replace(/[&<>"']/g,char=>({
+"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+})[char]);
+}
 
-        <!-- FOOTER -->
-        <footer class="text-center text-slate-500 text-xs py-10">
-            NazWay Affiliate Portal<br>
-            NAZYAN TRAVELS
-        </footer>
+function showError(message){
+loading.classList.add("hidden");
+dashboard.classList.add("hidden");
+errorBox.classList.remove("hidden");
+errorMessage.textContent=message;
+}
 
-    </main>
+// ADMIN LOGIN CHECK
+onAuthStateChanged(auth,async(user)=>{
 
+if(!user){
+location.replace("index.html");
+return;
+}
 
-    <!-- FIREBASE -->
-    <script type="module">
+try{
 
-        import {
-            initializeApp
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+const adminSnap=await getDoc(doc(db,"agents",user.uid));
 
-        import {
-            getAuth,
-            onAuthStateChanged,
-            signOut
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+if(!adminSnap.exists()){
+await signOut(auth);
+showError("Admin profile not found.");
+return;
+}
 
-        import {
-            getFirestore,
-            doc,
-            getDoc,
-            getDocs,
-            collection,
-            updateDoc
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+const adminData=adminSnap.data();
 
+if(adminData.role!=="admin"||adminData.status!=="approved"){
+await signOut(auth);
+showError("You do not have Admin permission.");
+return;
+}
 
-        // FIREBASE CONFIGURATION
+adminAccess=true;
+loading.classList.add("hidden");
+dashboard.classList.remove("hidden");
+logoutBtn.classList.remove("hidden");
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCCrmQBOFUNoUf6xv1q48MYhbOHL22JJig",
-            authDomain: "nazway-7d9f4.firebaseapp.com",
-            projectId: "nazway-7d9f4",
-            storageBucket: "nazway-7d9f4.firebasestorage.app",
-            messagingSenderId: "993042222919",
-            appId: "1:993042222919:web:3c0fab205ede2443f38662",
-            measurementId: "G-1NGSFBVMX6"
-        };
+await loadAgents();
 
+}catch(error){
+console.error(error);
+showError("Unable to verify Admin access. Check Security Rules and internet connection.");
+}
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+});
 
+// SECTION SWITCH
+window.showSection=function(section){
+
+document.getElementById("agentsSection").classList.toggle("hidden",section!=="agents");
+document.getElementById("bookingsSection").classList.toggle("hidden",section!=="bookings");
+
+document.getElementById("agentsSectionTab").className=
+section==="agents"?"nav-active px-4 py-3 rounded-lg text-sm":"bg-slate-800 px-4 py-3 rounded-lg text-sm";
+
+document.getElementById("bookingsSectionTab").className=
+section==="bookings"?"nav-active px-4 py-3 rounded-lg text-sm":"bg-slate-800 px-4 py-3 rounded-lg text-sm";
+
+if(section==="bookings") loadBookings();
+};
+
+// LOAD AGENTS
+async function loadAgents(){
+
+if(!adminAccess)return;
+
+agentList.innerHTML='<p class="text-center text-slate-400 py-8">Loading...</p>';
+
+try{
+
+const snapshot=await getDocs(collection(db,"agents"));
+allAgents=[];
+
+snapshot.forEach(document=>{
+const data=document.data();
+if(data.role==="admin")return;
+allAgents.push({id:document.id,...data});
+});
+
+updateStatistics();
+renderAgents();
+
+}catch(error){
+console.error(error);
+agentList.innerHTML='<p class="text-red-400 p-4">Unable to load agents. Check Security Rules.</p>';
+}
+}
+
+function updateStatistics(){
+document.getElementById("totalCount").textContent=allAgents.length;
+document.getElementById("pendingCount").textContent=allAgents.filter(a=>a.status==="pending").length;
+document.getElementById("approvedCount").textContent=allAgents.filter(a=>a.status==="approved").length;
+}
+
+// AGENT FILTER
+window.showAgents=function(filter){
+
+currentFilter=filter;
+
+document.querySelectorAll("#pendingTab,#approvedTab,#rejectedTab,#allTab").forEach(button=>{
+button.className="bg-slate-800 px-4 py-3 rounded-lg text-sm";
+});
+
+document.getElementById(filter+"Tab").className="nav-active px-4 py-3 rounded-lg text-sm";
+
+const titles={
+pending:"Pending Applications",
+approved:"Approved Agents",
+rejected:"Rejected Agents",
+all:"All Agents"
+};
+
+document.getElementById("listTitle").textContent=titles[filter];
+renderAgents();
+};
+
+// DISPLAY AGENTS
+function renderAgents(){
+
+let filtered=allAgents;
+
+if(currentFilter!=="all"){
+filtered=allAgents.filter(a=>a.status===currentFilter);
+}
+
+if(filtered.length===0){
+agentList.innerHTML='<div class="bg-slate-900 border border-slate-700 rounded-xl p-8 text-center text-slate-400">No agents found.</div>';
+return;
+}
+
+agentList.innerHTML=filtered.map(agent=>{
 
-        // ELEMENTS
+const color={
+pending:"text-amber-400",
+approved:"text-green-400",
+rejected:"text-red-400"
+}[agent.status]||"text-slate-400";
 
-        const loading = document.getElementById("loading");
-        const dashboard = document.getElementById("dashboard");
-        const errorBox = document.getElementById("errorBox");
-        const errorMessage = document.getElementById("errorMessage");
-        const logoutBtn = document.getElementById("logoutBtn");
-        const agentList = document.getElementById("agentList");
+let actions="";
 
-
-        let allAgents = [];
-        let currentFilter = "pending";
-        let isAdmin = false;
-
-
-        // ESCAPE HTML
-
-        function escapeHTML(value) {
-            return String(value ?? "").replace(/[&<>"']/g, char => ({
-                "&": "&amp;",
-                "<": "&lt;",
-                ">": "&gt;",
-                '"': "&quot;",
-                "'": "&#039;"
-            })[char]);
-        }
-
-
-        // SHOW ERROR
-
-        function showError(message) {
-            loading.classList.add("hidden");
-            dashboard.classList.add("hidden");
-            errorBox.classList.remove("hidden");
-            errorMessage.textContent = message;
-        }
-
-
-        // ADMIN AUTHENTICATION CHECK
-
-        onAuthStateChanged(auth, async (user) => {
-
-            if (!user) {
-                window.location.replace("index.html");
-                return;
-            }
-
-            try {
-
-                const adminRef = doc(db, "agents", user.uid);
-                const adminSnap = await getDoc(adminRef);
-
-                if (!adminSnap.exists()) {
-                    await signOut(auth);
-                    showError("Admin profile not found.");
-                    return;
-                }
-
-                const adminData = adminSnap.data();
-
-                if (
-                    adminData.role !== "admin" ||
-                    adminData.status !== "approved"
-                ) {
-                    await signOut(auth);
-                    showError("You do not have Admin permission.");
-                    return;
-                }
-
-                isAdmin = true;
-
-                loading.classList.add("hidden");
-                dashboard.classList.remove("hidden");
-                logoutBtn.classList.remove("hidden");
-
-                await loadAgents();
-
-            } catch (error) {
-
-                console.error(error);
-
-                showError(
-                    "Unable to verify Admin access. Please check Firestore Security Rules and internet connection."
-                );
-
-            }
-
-        });
-
-
-        // LOAD ALL AGENTS
-
-        async function loadAgents() {
-
-            if (!isAdmin) return;
-
-            agentList.innerHTML =
-                '<p class="text-center text-slate-400 py-8">Loading...</p>';
-
-            try {
-
-                const snapshot = await getDocs(collection(db, "agents"));
-
-                allAgents = [];
-
-                snapshot.forEach((document) => {
-
-                    const data = document.data();
-
-                    // Do not display the Admin account in agent lists.
-                    if (data.role === "admin") return;
-
-                    allAgents.push({
-                        id: document.id,
-                        ...data
-                    });
-
-                });
-
-                updateStatistics();
-                renderAgents();
-
-            } catch (error) {
-
-                console.error(error);
-
-                agentList.innerHTML =
-                    '<p class="text-red-400 p-4">Unable to load agents. Check your security rules.</p>';
-
-            }
-
-        }
-
-
-        // STATISTICS
-
-        function updateStatistics() {
-
-            document.getElementById("totalCount").textContent =
-                allAgents.length;
-
-            document.getElementById("pendingCount").textContent =
-                allAgents.filter(a => a.status === "pending").length;
-
-            document.getElementById("approvedCount").textContent =
-                allAgents.filter(a => a.status === "approved").length;
-
-        }
-
-
-        // FILTER AGENTS
-
-        window.showAgents = function(filter) {
-
-            currentFilter = filter;
-
-            document.querySelectorAll(
-                "#pendingTab, #approvedTab, #rejectedTab, #allTab"
-            ).forEach(button => {
-                button.className =
-                    "bg-slate-800 px-4 py-3 rounded-lg text-sm";
-            });
-
-            document.getElementById(filter + "Tab").className =
-                "nav-active px-4 py-3 rounded-lg text-sm";
-
-            const titles = {
-                pending: "Pending Applications",
-                approved: "Approved Agents",
-                rejected: "Rejected Agents",
-                all: "All Agents"
-            };
-
-            document.getElementById("listTitle").textContent =
-                titles[filter];
-
-            renderAgents();
-
-        };
-
-
-        // DISPLAY AGENTS
-
-        function renderAgents() {
-
-            let filtered = allAgents;
-
-            if (currentFilter !== "all") {
-                filtered = allAgents.filter(
-                    agent => agent.status === currentFilter
-                );
-            }
-
-            if (filtered.length === 0) {
-
-                agentList.innerHTML = `
-                    <div class="bg-slate-900 border border-slate-700 rounded-xl p-8 text-center">
-                        <p class="text-slate-400">
-                            No agents found in this section.
-                        </p>
-                    </div>
-                `;
-
-                return;
-            }
-
-
-            agentList.innerHTML = filtered.map(agent => {
-
-                const statusColor = {
-                    pending: "text-amber-400",
-                    approved: "text-green-400",
-                    rejected: "text-red-400"
-                }[agent.status] || "text-slate-400";
-
-                let actionButtons = "";
-
-                if (agent.status === "pending") {
-
-                    actionButtons = `
-                        <div class="flex flex-wrap gap-2 mt-5">
-
-                            <button
-                                onclick="changeStatus('${agent.id}', 'approved')"
-                                class="bg-green-600 hover:bg-green-700 px-5 py-2 rounded-lg text-sm font-semibold">
-                                Approve
-                            </button>
-
-                            <button
-                                onclick="changeStatus('${agent.id}', 'rejected')"
-                                class="bg-red-600 hover:bg-red-700 px-5 py-2 rounded-lg text-sm font-semibold">
-                                Reject
-                            </button>
-
-                        </div>
-                    `;
-
-                } else if (agent.status === "approved") {
-
-                    actionButtons = `
-                        <button
-                            onclick="changeStatus('${agent.id}', 'rejected')"
-                            class="mt-5 bg-red-700 hover:bg-red-800 px-5 py-2 rounded-lg text-sm">
-                            Revoke Approval
-                        </button>
-                    `;
-
-                } else if (agent.status === "rejected") {
-
-                    actionButtons = `
-                        <button
-                            onclick="changeStatus('${agent.id}', 'approved')"
-                            class="mt-5 bg-green-700 hover:bg-green-800 px-5 py-2 rounded-lg text-sm">
-                            Approve Again
-                        </button>
-                    `;
-
-                }
-
-
-                return `
-
-                    <div class="bg-slate-900 border border-slate-700 rounded-xl p-5">
-
-                        <div class="flex flex-wrap justify-between gap-3">
-
-                            <div>
-                                <h4 class="text-lg font-bold">
-                                    ${escapeHTML(agent.name)}
-                                </h4>
-
-                                <p class="text-sm text-slate-400 mt-1">
-                                    ${escapeHTML(agent.email)}
-                                </p>
-                            </div>
-
-                            <span class="${statusColor} text-sm font-semibold uppercase">
-                                ${escapeHTML(agent.status)}
-                            </span>
-
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5 text-sm">
-
-                            <p class="text-slate-300">
-                                <span class="text-slate-500">Phone:</span>
-                                ${escapeHTML(agent.phone)}
-                            </p>
-
-                            <p class="text-slate-300">
-                                <span class="text-slate-500">Agent ID:</span>
-                                ${escapeHTML(agent.id)}
-                            </p>
-
-                            <p class="text-slate-300">
-                                <span class="text-slate-500">Registered:</span>
-                                ${escapeHTML(agent.createdAt)}
-                            </p>
-
-                        </div>
-
-                        ${actionButtons}
-
-                    </div>
-
-                `;
-
-            }).join("");
-
-        }
-
-
-        // APPROVE / REJECT AGENT
-
-        window.changeStatus = async function(agentId, newStatus) {
-
-            if (!isAdmin) {
-                alert("Admin access required.");
-                return;
-            }
-
-            const agent = allAgents.find(a => a.id === agentId);
-
-            if (!agent) {
-                alert("Agent not found.");
-                return;
-            }
-
-            const action = newStatus === "approved"
-                ? "approve"
-                : "reject";
-
-            const confirmed = confirm(
-                "Are you sure you want to " +
-                action +
-                " " +
-                agent.name +
-                "?"
-            );
-
-            if (!confirmed) return;
-
-            try {
-
-                await updateDoc(
-                    doc(db, "agents", agentId),
-                    {
-                        status: newStatus,
-                        statusUpdatedAt: new Date().toISOString()
-                    }
-                );
-
-                alert(
-                    newStatus === "approved"
-                        ? "Agent approved successfully!"
-                        : "Agent rejected successfully!"
-                );
-
-                await loadAgents();
-
-            } catch (error) {
-
-                console.error(error);
-
-                alert(
-                    "Unable to update agent status. Please check your Security Rules."
-                );
-
-            }
-
-        };
-
-
-        // REFRESH
-
-        document.getElementById("refreshBtn")
-            .addEventListener("click", loadAgents);
-
-
-        // LOGOUT
-
-        logoutBtn.addEventListener("click", async () => {
-
-            const confirmed = confirm(
-                "Are you sure you want to logout?"
-            );
-
-            if (!confirmed) return;
-
-            try {
-
-                await signOut(auth);
-
-                window.location.replace("index.html");
-
-            } catch (error) {
-
-                alert("Logout failed. Please try again.");
-
-            }
-
-        });
-
-    </script>
-
+if(agent.status==="pending"){
+actions=`
+<div class="flex flex-wrap gap-2 mt-5">
+<button onclick="changeStatus('${escapeHTML(agent.id)}','approved')" class="bg-green-600 px-5 py-2 rounded-lg text-sm">Approve</button>
+<button onclick="changeStatus('${escapeHTML(agent.id)}','rejected')" class="bg-red-600 px-5 py-2 rounded-lg text-sm">Reject</button>
+</div>`;
+}else if(agent.status==="approved"){
+actions=`<button onclick="changeStatus('${escapeHTML(agent.id)}','rejected')" class="mt-5 bg-red-700 px-5 py-2 rounded-lg text-sm">Revoke Approval</button>`;
+}else if(agent.status==="rejected"){
+actions=`<button onclick="changeStatus('${escapeHTML(agent.id)}','approved')" class="mt-5 bg-green-700 px-5 py-2 rounded-lg text-sm">Approve Again</button>`;
+}
+
+return `
+<div class="bg-slate-900 border border-slate-700 rounded-xl p-5">
+<div class="flex flex-wrap justify-between gap-3">
+<div>
+<h4 class="text-lg font-bold">${escapeHTML(agent.name)}</h4>
+<p class="text-sm text-slate-400 mt-1">${escapeHTML(agent.email)}</p>
+</div>
+<span class="${color} text-sm font-semibold uppercase">${escapeHTML(agent.status)}</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5 text-sm">
+<p class="text-slate-300">Phone: ${escapeHTML(agent.phone)}</p>
+<p class="text-slate-300 break-all">Agent ID: ${escapeHTML(agent.id)}</p>
+<p class="text-slate-300">Registered: ${escapeHTML(agent.createdAt)}</p>
+</div>
+${actions}
+</div>`;
+}).join("");
+}
+
+// CHANGE AGENT STATUS
+window.changeStatus=async(agentId,newStatus)=>{
+
+if(!adminAccess)return;
+
+const agent=allAgents.find(a=>a.id===agentId);
+if(!agent)return;
+
+if(!confirm("Are you sure you want to "+newStatus+" "+agent.name+"?"))return;
+
+try{
+
+await updateDoc(doc(db,"agents",agentId),{
+status:newStatus,
+statusUpdatedAt:new Date().toISOString()
+});
+
+alert("Agent status updated successfully!");
+await loadAgents();
+
+}catch(error){
+console.error(error);
+alert("Unable to update agent status. Check Security Rules.");
+}
+};
+
+// LOAD ALL FLIGHT BOOKINGS
+async function loadBookings(){
+
+if(!adminAccess)return;
+
+bookingList.innerHTML='<p class="text-center text-slate-400 py-8">Loading bookings...</p>';
+
+try{
+
+const snapshot=await getDocs(collection(db,"flightBookings"));
+allBookings=[];
+
+snapshot.forEach(document=>{
+allBookings.push({id:document.id,...document.data()});
+});
+
+allBookings.sort((a,b)=>{
+return String(b.createdAt||"").localeCompare(String(a.createdAt||""));
+});
+
+renderBookings();
+
+}catch(error){
+console.error(error);
+bookingList.innerHTML='<p class="text-red-400 p-4">Unable to load bookings. Check Firestore Security Rules.</p>';
+}
+}
+
+// BOOKING FILTER
+window.showBookings=function(filter){
+
+currentBookingFilter=filter;
+
+const filters=["all","new","processing","confirmed","rejected"];
+
+filters.forEach(item=>{
+const button=document.getElementById("booking"+item.charAt(0).toUpperCase()+item.slice(1)+"Tab");
+button.className="bg-slate-800 px-4 py-3 rounded-lg text-sm";
+});
+
+document.getElementById("booking"+filter.charAt(0).toUpperCase()+filter.slice(1)+"Tab").className=
+"nav-active px-4 py-3 rounded-lg text-sm";
+
+const titles={
+all:"All Flight Bookings",
+new:"New Bookings",
+processing:"Processing Bookings",
+confirmed:"Confirmed Bookings",
+rejected:"Rejected Bookings"
+};
+
+document.getElementById("bookingTitle").textContent=titles[filter];
+renderBookings();
+};
+
+// DISPLAY BOOKINGS
+function renderBookings(){
+
+let filtered=allBookings;
+
+if(currentBookingFilter!=="all"){
+filtered=allBookings.filter(b=>b.status===currentBookingFilter);
+}
+
+if(filtered.length===0){
+bookingList.innerHTML=`
+<div class="bg-slate-900 border border-slate-700 rounded-xl p-8 text-center">
+<p class="text-slate-400">No bookings found in this section.</p>
+</div>`;
+return;
+}
+
+bookingList.innerHTML=filtered.map(booking=>{
+
+const statusColor={
+new:"text-amber-400",
+processing:"text-blue-400",
+confirmed:"text-green-400",
+rejected:"text-red-400"
+}[booking.status]||"text-slate-400";
+
+const tripType=booking.tripType==="roundtrip"?"Round Trip":"One Way";
+
+return `
+<div class="bg-slate-900 border border-slate-700 rounded-xl p-5">
+
+<div class="flex flex-wrap justify-between gap-3">
+<div>
+<h3 class="text-xl font-bold">${escapeHTML(booking.from)} → ${escapeHTML(booking.to)}</h3>
+<p class="text-sm text-slate-400 mt-1">${tripType}</p>
+</div>
+<span class="${statusColor} font-bold uppercase text-sm">${escapeHTML(booking.status)}</span>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5 text-sm">
+
+<p><span class="text-slate-400">Agent:</span> ${escapeHTML(booking.agentName)}</p>
+<p><span class="text-slate-400">Agent Email:</span> ${escapeHTML(booking.agentEmail)}</p>
+<p class="break-all"><span class="text-slate-400">Agent ID:</span> ${escapeHTML(booking.agentId)}</p>
+<p><span class="text-slate-400">Departure:</span> ${escapeHTML(booking.departureDate)}</p>
+<p><span class="text-slate-400">Return:</span> ${escapeHTML(booking.returnDate||"Not applicable")}</p>
+<p><span class="text-slate-400">Adults:</span> ${escapeHTML(booking.adults)}</p>
+<p><span class="text-slate-400">Children:</span> ${escapeHTML(booking.children)}</p>
+<p><span class="text-slate-400">Infants:</span> ${escapeHTML(booking.infants)}</p>
+<p><span class="text-slate-400">Booking Date:</span> ${escapeHTML(booking.createdAt)}</p>
+
+</div>
+
+<div class="mt-4 bg-slate-800 rounded-lg p-3">
+<p class="text-xs text-slate-400 mb-1">Additional Requirements</p>
+<p class="text-sm whitespace-pre-wrap">${escapeHTML(booking.requirements||"None")}</p>
+</div>
+
+<div class="mt-5 border-t border-slate-700 pt-4">
+<p class="text-sm text-slate-400 mb-3">Update Booking Status</p>
+
+<div class="flex flex-wrap gap-2">
+${["new","processing","confirmed","rejected"].map(status=>`
+<button
+onclick="changeBookingStatus('${escapeHTML(booking.id)}','${status}')"
+${booking.status===status?"disabled":""}
+class="${booking.status===status?"bg-slate-700 text-slate-400 opacity-60":"bg-blue-700 hover:bg-blue-600"} px-4 py-2 rounded-lg text-xs font-semibold">
+${status.toUpperCase()}
+</button>
+`).join("")}
+</div>
+</div>
+
+</div>`;
+}).join("");
+}
+
+// CHANGE BOOKING STATUS
+window.changeBookingStatus=async(bookingId,newStatus)=>{
+
+if(!adminAccess){
+alert("Admin access required.");
+return;
+}
+
+const booking=allBookings.find(b=>b.id===bookingId);
+if(!booking)return;
+
+if(!confirm("Change booking status to "+newStatus.toUpperCase()+"?"))return;
+
+try{
+
+await updateDoc(doc(db,"flightBookings",bookingId),{
+status:newStatus,
+statusUpdatedAt:new Date().toISOString()
+});
+
+alert("Booking status updated successfully!");
+
+await loadBookings();
+
+}catch(error){
+console.error(error);
+alert("Unable to update booking status. Check Firestore Security Rules.");
+}
+};
+
+// REFRESH BUTTONS
+document.getElementById("refreshBtn").addEventListener("click",loadAgents);
+document.getElementById("refreshBookingsBtn").addEventListener("click",loadBookings);
+
+// LOGOUT
+logoutBtn.addEventListener("click",async()=>{
+
+if(!confirm("Are you sure you want to logout?"))return;
+
+try{
+await signOut(auth);
+location.replace("index.html");
+}catch(error){
+alert("Logout failed. Please try again.");
+}
+
+});
+
+</script>
 </body>
 </html>
