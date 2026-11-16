@@ -682,26 +682,31 @@ let html=`
 <div class="flex flex-wrap items-center justify-between gap-3">
 <p class="text-xs text-slate-400">Showing ${start}–${end} of ${total} bookings</p>
 <div class="flex flex-wrap items-center gap-2">
-<button class="page-btn" ="changeBookingPage(${bookingPage-1})" ${bookingPage===1?"disabled":""}>Previous</button>
+
+<button class="page-btn"
+onclick="changeBookingPage(${bookingPage-1})"
+${bookingPage===1?"disabled":""}>Previous</button>
 `;
 
 for(let i=1;i<=totalPages;i++){
 
 html+=`
 <button class="page-btn ${i===bookingPage?"active":""}"
-="changeBookingPage(${i})">${i}</button>`;
+onclick="changeBookingPage(${i})">${i}</button>`;
 
 }
 
 html+=`
-<button class="page-btn" ="changeBookingPage(${bookingPage+1})" ${bookingPage===totalPages?"disabled":""}>Next</button>
+<button class="page-btn"
+onclick="changeBookingPage(${bookingPage+1})"
+${bookingPage===totalPages?"disabled":""}>Next</button>
+
 </div>
 </div>`;
 
 container.innerHTML=html;
 
 }
-
 window.changeBookingPage=function(page){
 
 const search=document.getElementById("bookingSearch").value.toLowerCase().trim();
