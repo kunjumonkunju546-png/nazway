@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#102f50">
+<title>Flight Booking | NAZWAY</title>
+<style>
+:root{
+  --navy:#102f50;--blue:#174b78;--gold:#c5a45b;
+  --bg:#f4f6f9;--white:#fff;--text:#1d2938;
+  --muted:#718096;--border:#e5eaf0;--green:#16845b;
+  --red:#c33e45;--shadow:0 8px 25px rgba(16,47,80,.07);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+  font-family:Arial,Helvetica,sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.topbar{background:var(--navy);color:white;padding:17px 18px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{font-size:19px;font-weight:800;letter-spacing:1px}
+.brand small{display:block;color:#d7c18d;font-size:10px;
+  letter-spacing:2px;margin-top:4px}
+.top-actions{display:flex;gap:8px}
+.top-actions button{border:1px solid #ffffff55;background:transparent;
+  color:white;border-radius:9px;padding:9px 11px;font-size:12px}
+.wrap{max-width:920px;margin:0 auto;padding:20px 15px 45px}
+.welcome{margin:5px 0 18px}
+.welcome h1{font-size:23px;margin:0 0 6px;color:var(--navy)}
+.welcome p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
+.tabs{display:flex;gap:8px;margin-bottom:16px}
+.tab{flex:1;padding:13px 10px;border:1px solid var(--border);
+  border-radius:11px;background:white;color:var(--navy);
+  font-weight:700;font-size:13px}
+.tab.active{background:var(--navy);color:white;border-color:var(--navy)}
+.panel{background:white;border:1px solid var(--border);
+  border-radius:16px;padding:19px;box-shadow:var(--shadow)}
+.panel h2{font-size:18px;color:var(--navy);margin:0 0 5px}
+.sub{font-size:12px;color:var(--muted);margin:0 0 19px;line-height:1.5}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{min-width:0}
+.field.full{grid-column:1/-1}
+label{display:block;font-size:12px;font-weight:700;
+  color:#435268;margin-bottom:7px}
+input,select,textarea{width:100%;border:1px solid #dce3eb;
+  border-radius:10px;padding:12px;background:#fff;color:var(--text);
+  outline:none;min-height:44px}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);
+  box-shadow:0 0 0 3px #174b7812}
+textarea{min-height:90px;resize:vertical}
+.trip-options{display:flex;gap:8px;flex-wrap:wrap}
+.trip-option{display:flex;align-items:center;gap:7px;border:1px solid var(--border);
+  padding:10px 12px;border-radius:9px;font-size:13px}
+.trip-option input{width:auto;min-height:auto;margin:0;accent-color:var(--blue)}
+.counter-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.counter{border:1px solid var(--border);border-radius:11px;padding:11px}
+.counter span{display:block;font-size:12px;font-weight:700;color:#435268}
+.counter small{display:block;color:var(--muted);font-size:10px;margin-top:3px}
+.counter-controls{display:flex;align-items:center;justify-content:space-between;
+  margin-top:10px}
+.counter-controls button{width:29px;height:29px;border:1px solid var(--border);
+  background:#f7f9fb;border-radius:8px;color:var(--navy);font-weight:bold}
+.counter-controls strong{font-size:15px}
+.primary{width:100%;border:0;border-radius:11px;padding:14px;
+  background:var(--navy);color:white;font-weight:700;margin-top:18px}
+.primary:disabled{opacity:.55;cursor:not-allowed}
+.notice{display:none;border-radius:10px;padding:12px 13px;
+  font-size:13px;line-height:1.5;margin-bottom:14px}
+.notice.error{display:block;background:#fff0f0;color:#a52d35}
+.notice.success{display:block;background:#eaf8f1;color:#126c48}
+.empty{padding:28px 12px;text-align:center;color:var(--muted);
+  font-size:13px;line-height:1.6}
+.booking-list{display:grid;gap:11px}
+.booking-card{border:1px solid var(--border);border-radius:12px;
+  padding:14px;background:#fff}
+.booking-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.route{font-size:16px;font-weight:800;color:var(--navy)}
+.booking-date{font-size:12px;color:var(--muted);margin-top:6px}
+.status{font-size:10px;font-weight:800;text-transform:uppercase;
+  border-radius:30px;padding:6px 9px;background:#fff3dc;color:#946515;
+  white-space:nowrap}
+.status.processing{background:#eaf2ff;color:#245b9a}
+.status.confirmed{background:#e5f7ee;color:#13754c}
+.status.rejected{background:#fff0f0;color:#b43b43}
+.booking-meta{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.booking-meta span{font-size:11px;color:#5d6b7d;background:#f3f6f9;
+  padding:6px 8px;border-radius:7px}
+.view-btn{margin-top:12px;border:1px solid var(--navy);background:white;
+  color:var(--navy);border-radius:8px;padding:9px 12px;
+  font-size:12px;font-weight:700}
+.detail-back{border:0;background:transparent;color:var(--blue);
+  padding:0 0 15px;font-weight:700}
+.detail-box{border:1px solid var(--border);border-radius:11px;
+  padding:13px;margin-top:12px}
+.detail-box h3{font-size:13px;color:var(--navy);margin:0 0 12px}
+.detail-line{display:flex;justify-content:space-between;gap:12px;
+  padding:8px 0;border-bottom:1px solid #f0f2f5;font-size:12px}
+.detail-line:last-child{border-bottom:0}
+.detail-line span:first-child{color:var(--muted)}
+.detail-line strong{text-align:right;overflow-wrap:anywhere}
+.loading{text-align:center;padding:30px;color:var(--muted);font-size:13px}
+.footer{text-align:center;color:#9aa5b2;font-size:11px;padding:25px 0 0}
+.hidden{display:none!important}
+@media(max-width:560px){
+  .topbar{padding:14px}
+  .brand{font-size:17px}
+  .top-actions button{padding:8px;font-size:11px}
+  .wrap{padding:17px 12px 35px}
+  .panel{padding:15px}
+  .grid{grid-template-columns:1fr;gap:12px}
+  .field.full{grid-column:auto}
+  .counter-row{gap:7px}
+  .counter{padding:9px 7px}
+  .counter span{font-size:11px}
+  .counter small{font-size:9px}
+  .counter-controls button{width:26px;height:26px}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">NAZWAY<small>TRAVEL PARTNER PORTAL</small></div>
+  <div class="top-actions">
+    <button type="button" onclick="goDashboard()">Dashboard</button>
+    <button type="button" id="logoutBtn">Logout</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="welcome">
+    <h1>Flight Booking</h1>
+    <p id="welcomeText">Submit a flight enquiry and track your booking requests.</p>
+  </section>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" id="newTab" type="button">＋ New Enquiry</button>
+    <button class="tab" id="bookingsTab" type="button">My Bookings</button>
+  </div>
+
+  <div id="pageNotice" class="notice"></div>
+
+  <section class="panel" id="newPanel">
+    <h2>New Flight Enquiry</h2>
+    <p class="sub">Enter the passenger and travel details below. Our team will review your enquiry.</p>
+
+    <form id="flightForm">
+      <div class="field full" style="margin-bottom:16px">
+        <label>Trip Type</label>
+        <div class="trip-options">
+          <label class="trip-option"><input type="radio" name="tripType" value="one-way" checked> One Way</label>
+          <label class="trip-option"><input type="radio" name="tripType" value="round-trip"> Round Trip</label>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="field">
+          <label for="from">From *</label>
+          <input id="from" required maxlength="100" placeholder="Departure city / airport">
+        </div>
+        <div class="field">
+          <label for="to">To *</label>
+          <input id="to" required maxlength="100" placeholder="Destination city / airport">
+        </div>
+        <div class="field">
+          <label for="departureDate">Departure Date *</label>
+          <input id="departureDate" type="date" required>
+        </div>
+        <div class="field hidden" id="returnField">
+          <label for="returnDate">Return Date *</label>
+          <input id="returnDate" type="date">
+        </div>
+        <div class="field full">
+          <label>Passengers *</label>
+          <div class="counter-row">
+            <div class="counter">
+              <span>Adults</span><small>12 years and above</small>
+              <div class="counter-controls">
+                <button type="button" data-counter="adults" data-change="-1">−</button>
+                <strong id="adultsValue">1</strong>
+                <button type="button" data-counter="adults" data-change="1">+</button>
+              </div>
+            </div>
+            <div class="counter">
+              <span>Children</span><small>2 to 11 years</small>
+              <div class="counter-controls">
+                <button type="button" data-counter="children" data-change="-1">−</button>
+                <strong id="childrenValue">0</strong>
+                <button type="button" data-counter="children" data-change="1">+</button>
+              </div>
+            </div>
+            <div class="counter">
+              <span>Infants</span><small>Below 2 years</small>
+              <div class="counter-controls">
+                <button type="button" data-counter="infants" data-change="-1">−</button>
+                <strong id="infantsValue">0</strong>
+                <button type="button" data-counter="infants" data-change="1">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="field full">
+          <label for="requirements">Additional Requirements (Optional)</label>
+          <textarea id="requirements" maxlength="1500"
+            placeholder="Preferred airline, baggage needs, flexible dates or any other request..."></textarea>
+        </div>
+      </div>
+      <button class="primary" id="submitBtn" type="submit">Submit Flight Enquiry</button>
+    </form>
+  </section>
+
+  <section class="panel hidden" id="bookingsPanel">
+    <h2>My Flight Bookings</h2>
+    <p class="sub">Your submitted flight enquiries and their current status.</p>
+    <div id="bookingList" class="booking-list">
+      <div class="loading">Loading your bookings...</div>
+    </div>
+  </section>
+
+  <section class="panel hidden" id="detailPanel">
+    <button class="detail-back" type="button" id="backToBookings">← Back to My Bookings</button>
+    <h2>Booking Details</h2>
+    <p class="sub" id="detailReference"></p>
+    <div id="detailContent"></div>
+  </section>
+
+  <div class="footer">NAZYAN TRAVELS · NAZWAY PARTNER PORTAL</div>
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import {
+  getAuth, onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, collection, addDoc,
+  getDocs, query, where
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCCrmQBOFUNoUf6xv1q48MYhbOHL22JJig",
+  authDomain: "nazway-7d9f4.firebaseapp.com",
+  projectId: "nazway-7d9f4",
+  storageBucket: "nazway-7d9f4.firebasestorage.app",
+  messagingSenderId: "993042222919",
+  appId: "1:993042222919:web:3c0fab205ede2443f38662",
+  measurementId: "G-1NGSFBVMX6"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUser = null;
+let currentAgent = null;
+let passengerCounts = { adults: 1, children: 0, infants: 0 };
+let bookingsCache = [];
+
+const $ = id => document.getElementById(id);
+
+function showNotice(message, type = "error") {
+  const box = $("pageNotice");
+  box.textContent = message;
+  box.className = "notice " + type;
+  box.scrollIntoView({behavior:"smooth", block:"center"});
+}
+function clearNotice() {
+  $("pageNotice").textContent = "";
+  $("pageNotice").className = "notice";
+}
+function safeText(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[char]);
+}
+function formatDate(value) {
+  if (!value) return "Not specified";
+  const d = new Date(value + (String(value).length === 10 ? "T00:00:00" : ""));
+  if (Number.isNaN(d.getTime())) return String(value);
+  return d.toLocaleDateString("en-GB", {
+    day:"2-digit", month:"short", year:"numeric"
+  });
+}
+function formatDateTime(value) {
+  if (!value) return "Not available";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return String(value);
+  return d.toLocaleString("en-GB");
+}
+function statusClass(status) {
+  const s = String(status || "new").toLowerCase();
+  return ["new","processing","confirmed","rejected"].includes(s) ? s : "new";
+}
+function statusLabel(status) {
+  const s = String(status || "new").toLowerCase();
+  return ({new:"New",processing:"Processing",confirmed:"Confirmed",rejected:"Rejected"})[s] || s;
+}
+
+window.goDashboard = () => window.location.href = "dashboard.html";
+
+$("logoutBtn").addEventListener("click", async () => {
+  try {
+    await signOut(auth);
+    window.location.replace("index.html");
+  } catch (error) {
+    showNotice("Logout failed. Please try again.");
+    console.error(error);
+  }
+});
+
+function setTab(tab) {
+  clearNotice();
+  $("newPanel").classList.toggle("hidden", tab !== "new");
+  $("bookingsPanel").classList.toggle("hidden", tab !== "bookings");
+  $("detailPanel").classList.add("hidden");
+  $("tabs").classList.remove("hidden");
+  $("newTab").classList.toggle("active", tab === "new");
+  $("bookingsTab").classList.toggle("active", tab === "bookings");
+  if (tab === "bookings") loadBookings();
+}
+$("newTab").addEventListener("click", () => setTab("new"));
+$("bookingsTab").addEventListener("click", () => setTab("bookings"));
+$("backToBookings").addEventListener("click", () => setTab("bookings"));
+
+document.querySelectorAll("[data-counter]").forEach(button => {
+  button.addEventListener("click", () => {
+    const key = button.dataset.counter;
+    const change = Number(button.dataset.change);
+    const next = passengerCounts[key] + change;
+    if (next < (key === "adults" ? 1 : 0) || next > 9) return;
+    passengerCounts[key] = next;
+    $(key + "Value").textContent = String(next);
+  });
+});
+
+document.querySelectorAll('input[name="tripType"]').forEach(radio => {
+  radio.addEventListener("change", () => {
+    const isRoundTrip = document.querySelector('input[name="tripType"]:checked').value === "round-trip";
+    $("returnField").classList.toggle("hidden", !isRoundTrip);
+    $("returnDate").required = isRoundTrip;
+  });
+});
+
+const today = new Date();
+const todayString = [
+  today.getFullYear(),
+  String(today.getMonth()+1).padStart(2,"0"),
+  String(today.getDate()).padStart(2,"0")
+].join("-");
+$("departureDate").min = todayString;
+$("returnDate").min = todayString;
+
+$("departureDate").addEventListener("change", () => {
+  $("returnDate").min = $("departureDate").value || todayString;
+  if ($("returnDate").value && $("returnDate").value < $("departureDate").value) {
+    $("returnDate").value = "";
+  }
+});
+
+$("flightForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  clearNotice();
+
+  if (!currentUser || !currentAgent) {
+    showNotice("Your login session is not ready. Please refresh and try again.");
+    return;
+  }
+
+  const tripType = document.querySelector('input[name="tripType"]:checked').value;
+  const from = $("from").value.trim();
+  const to = $("to").value.trim();
+  const departureDate = $("departureDate").value;
+  const returnDate = $("returnDate").value;
+
+  if (!from || !to || !departureDate) {
+    showNotice("Please complete all required fields.");
+    return;
+  }
+  if (from.toLowerCase() === to.toLowerCase()) {
+    showNotice("Departure and destination cannot be the same.");
+    return;
+  }
+  if (departureDate < todayString) {
+    showNotice("Departure date cannot be in the past.");
+    return;
+  }
+  if (tripType === "round-trip" && !returnDate) {
+    showNotice("Please select your return date.");
+    return;
+  }
+  if (tripType === "round-trip" && returnDate < departureDate) {
+    showNotice("Return date cannot be before departure date.");
+    return;
+  }
+
+  const totalPassengers = passengerCounts.adults +
+    passengerCounts.children + passengerCounts.infants;
+  if (totalPassengers > 9) {
+    showNotice("Maximum 9 passengers are allowed per enquiry.");
+    return;
+  }
+
+  const submitBtn = $("submitBtn");
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Submitting...";
+
+  const bookingData = {
+    agentId: currentUser.uid,
+    agentName: currentAgent.name,
+    agentEmail: currentAgent.email,
+    service: "flight",
+    tripType,
+    from,
+    to,
+    departureDate,
+    returnDate: tripType === "round-trip" ? returnDate : "",
+    adults: passengerCounts.adults,
+    children: passengerCounts.children,
+    infants: passengerCounts.infants,
+    requirements: $("requirements").value.trim(),
+    status: "new",
+    createdAt: new Date().toISOString()
+  };
+
+  try {
+    const docRef = await addDoc(collection(db, "flightBookings"), bookingData);
+    $("flightForm").reset();
+    passengerCounts = {adults:1, children:0, infants:0};
+    $("adultsValue").textContent = "1";
+    $("childrenValue").textContent = "0";
+    $("infantsValue").textContent = "0";
+    $("returnField").classList.add("hidden");
+    $("returnDate").required = false;
+    $("departureDate").min = todayString;
+    showNotice("Your flight enquiry has been submitted successfully. Reference: " + docRef.id, "success");
+    $("flightForm").scrollIntoView({behavior:"smooth", block:"start"});
+  } catch (error) {
+    console.error("Flight enquiry submission failed:", error);
+    showNotice("Unable to submit your enquiry. Please check your internet connection and try again.");
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit Flight Enquiry";
+  }
+});
+
+async function loadBookings() {
+  const list = $("bookingList");
+  list.innerHTML = '<div class="loading">Loading your bookings...</div>';
+
+  try {
+    const q = query(
+      collection(db, "flightBookings"),
+      where("agentId", "==", currentUser.uid)
+    );
+    const snapshot = await getDocs(q);
+    bookingsCache = snapshot.docs.map(item => ({
+      id:item.id, ...item.data()
+    }));
+    bookingsCache.sort((a,b) =>
+      String(b.createdAt || "").localeCompare(String(a.createdAt || ""))
+    );
+
+    if (!bookingsCache.length) {
+      list.innerHTML = '<div class="empty">You have not submitted any flight enquiries yet.<br>Use “New Enquiry” to get started.</div>';
+      return;
+    }
+
+    list.innerHTML = bookingsCache.map(booking => {
+      const route = safeText(booking.from || "From") + " → " +
+        safeText(booking.to || "To");
+      const passengerTotal = Number(booking.adults || 0) +
+        Number(booking.children || 0) + Number(booking.infants || 0);
+      const status = statusClass(booking.status);
+      return `
+        <article class="booking-card">
+          <div class="booking-top">
+            <div>
+              <div class="route">${route}</div>
+              <div class="booking-date">${safeText(formatDate(booking.departureDate))}</div>
+            </div>
+            <span class="status ${status}">${safeText(statusLabel(booking.status))}</span>
+          </div>
+          <div class="booking-meta">
+            <span>${safeText(booking.tripType === "round-trip" ? "Round Trip" : "One Way")}</span>
+            <span>${passengerTotal} Passenger(s)</span>
+            <span>${safeText(formatDate(booking.createdAt))}</span>
+          </div>
+          <button type="button" class="view-btn" data-view-booking="${safeText(booking.id)}">View Details</button>
+        </article>`;
+    }).join("");
+
+    list.querySelectorAll("[data-view-booking]").forEach(button => {
+      button.addEventListener("click", () => {
+        const booking = bookingsCache.find(item => item.id === button.dataset.viewBooking);
+        if (booking) showBookingDetails(booking);
+      });
+    });
+  } catch (error) {
+    console.error("Could not load flight bookings:", error);
+    list.innerHTML = '<div class="empty">Could not load bookings. Please refresh the page and try again.</div>';
+  }
+}
+
+function detailLine(label, value) {
+  return `<div class="detail-line"><span>${safeText(label)}</span><strong>${safeText(value || "Not specified")}</strong></div>`;
+}
+
+function showBookingDetails(booking) {
+  $("tabs").classList.add("hidden");
+  $("newPanel").classList.add("hidden");
+  $("bookingsPanel").classList.add("hidden");
+  $("detailPanel").classList.remove("hidden");
+  $("detailReference").textContent = "Booking reference: " + booking.id;
+
+  const passengerTotal = Number(booking.adults || 0) +
+    Number(booking.children || 0) + Number(booking.infants || 0);
+
+  $("detailContent").innerHTML = `
+    <div class="detail-box">
+      <h3>Journey Details</h3>
+      ${detailLine("Trip Type", booking.tripType === "round-trip" ? "Round Trip" : "One Way")}
+      ${detailLine("From", booking.from)}
+      ${detailLine("To", booking.to)}
+      ${detailLine("Departure", formatDate(booking.departureDate))}
+      ${detailLine("Return", booking.tripType === "round-trip" ? formatDate(booking.returnDate) : "Not applicable")}
+    </div>
+    <div class="detail-box">
+      <h3>Passenger Details</h3>
+      ${detailLine("Adults", booking.adults)}
+      ${detailLine("Children", booking.children)}
+      ${detailLine("Infants", booking.infants)}
+      ${detailLine("Total Passengers", passengerTotal)}
+    </div>
+    <div class="detail-box">
+      <h3>Enquiry Status</h3>
+      ${detailLine("Current Status", statusLabel(booking.status))}
+      ${detailLine("Submitted On", formatDateTime(booking.createdAt))}
+      ${detailLine("Requirements", booking.requirements || "No additional requirements")}
+    </div>`;
+}
+
+onAuthStateChanged(auth, async user => {
+  if (!user) {
+    window.location.replace("index.html");
+    return;
+  }
+
+  currentUser = user;
+  try {
+    const agentSnap = await getDoc(doc(db, "agents", user.uid));
+
+    if (!agentSnap.exists()) {
+      await signOut(auth);
+      window.location.replace("index.html");
+      return;
+    }
+
+    const data = agentSnap.data();
+
+    if (data.role === "admin") {
+      window.location.replace("admin.html");
+      return;
+    }
+    if (data.role !== "agent") {
+      await signOut(auth);
+      window.location.replace("index.html");
+      return;
+    }
+    if (data.status !== "approved") {
+      $("newPanel").innerHTML = `
+        <h2>Account Approval Required</h2>
+        <p class="sub">Your partner account is not approved yet. Please contact NAZYAN TRAVELS.</p>`;
+      $("tabs").classList.add("hidden");
+      return;
+    }
+
+    currentAgent = {
+      name: data.name || "Agent",
+      email: data.email || user.email || "Not available"
+    };
+    $("welcomeText").textContent = "Welcome, " + currentAgent.name +
+      ". Submit a flight enquiry and track your booking requests.";
+  } catch (error) {
+    console.error("Agent verification failed:", error);
+    $("newPanel").innerHTML = `
+      <h2>Unable to verify account</h2>
+      <p class="sub">Please check your internet connection and refresh this page.</p>`;
+    $("tabs").classList.add("hidden");
+  }
+});
+</script>
+</body>
+</html>
