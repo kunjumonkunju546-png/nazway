@@ -149,8 +149,8 @@ textarea{min-height:90px;resize:vertical}
       <div class="field full" style="margin-bottom:16px">
         <label>Trip Type</label>
         <div class="trip-options">
-          <label class="trip-option"><input type="radio" name="tripType" value="one-way" checked> One Way</label>
-          <label class="trip-option"><input type="radio" name="tripType" value="round-trip"> Round Trip</label>
+          <label class="trip-option"><input type="radio" name="tripType" value="oneway" checked> One Way</label>
+          <label class="trip-option"><input type="radio" name="tripType" value="roundtrip"> Round Trip</label>
         </div>
       </div>
 
@@ -202,7 +202,7 @@ textarea{min-height:90px;resize:vertical}
         </div>
         <div class="field full">
           <label for="requirements">Additional Requirements (Optional)</label>
-          <textarea id="requirements" maxlength="1500"
+          <textarea id="requirements" maxlength="1000"
             placeholder="Preferred airline, baggage needs, flexible dates or any other request..."></textarea>
         </div>
       </div>
@@ -336,7 +336,7 @@ document.querySelectorAll("[data-counter]").forEach(button => {
 
 document.querySelectorAll('input[name="tripType"]').forEach(radio => {
   radio.addEventListener("change", () => {
-    const isRoundTrip = document.querySelector('input[name="tripType"]:checked').value === "round-trip";
+    const isRoundTrip = document.querySelector('input[name="tripType"]:checked').value === "roundtrip";
     $("returnField").classList.toggle("hidden", !isRoundTrip);
     $("returnDate").required = isRoundTrip;
   });
@@ -385,11 +385,11 @@ $("flightForm").addEventListener("submit", async event => {
     showNotice("Departure date cannot be in the past.");
     return;
   }
-  if (tripType === "round-trip" && !returnDate) {
+  if (tripType === "roundtrip" && !returnDate) {
     showNotice("Please select your return date.");
     return;
   }
-  if (tripType === "round-trip" && returnDate < departureDate) {
+  if (tripType === "roundtrip" && returnDate < departureDate) {
     showNotice("Return date cannot be before departure date.");
     return;
   }
@@ -414,7 +414,7 @@ $("flightForm").addEventListener("submit", async event => {
     from,
     to,
     departureDate,
-    returnDate: tripType === "round-trip" ? returnDate : "",
+    returnDate: tripType === "roundtrip" ? returnDate : "",
     adults: passengerCounts.adults,
     children: passengerCounts.children,
     infants: passengerCounts.infants,
@@ -482,7 +482,7 @@ async function loadBookings() {
             <span class="status ${status}">${safeText(statusLabel(booking.status))}</span>
           </div>
           <div class="booking-meta">
-            <span>${safeText(booking.tripType === "round-trip" ? "Round Trip" : "One Way")}</span>
+            <span>${safeText(booking.tripType === "roundtrip" ? "Round Trip" : "One Way")}</span>
             <span>${passengerTotal} Passenger(s)</span>
             <span>${safeText(formatDate(booking.createdAt))}</span>
           </div>
@@ -519,11 +519,11 @@ function showBookingDetails(booking) {
   $("detailContent").innerHTML = `
     <div class="detail-box">
       <h3>Journey Details</h3>
-      ${detailLine("Trip Type", booking.tripType === "round-trip" ? "Round Trip" : "One Way")}
+      ${detailLine("Trip Type", booking.tripType === "roundtrip" ? "Round Trip" : "One Way")}
       ${detailLine("From", booking.from)}
       ${detailLine("To", booking.to)}
       ${detailLine("Departure", formatDate(booking.departureDate))}
-      ${detailLine("Return", booking.tripType === "round-trip" ? formatDate(booking.returnDate) : "Not applicable")}
+      ${detailLine("Return", booking.tripType === "roundtrip" ? formatDate(booking.returnDate) : "Not applicable")}
     </div>
     <div class="detail-box">
       <h3>Passenger Details</h3>
