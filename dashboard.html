@@ -1447,8 +1447,8 @@ document.querySelectorAll("[data-service]").forEach(button => {
 
   button.addEventListener("click", () => {
 
-    if(button.dataset.service === "Flight Tickets") {
-      openFlightRequest();
+    if (button.dataset.service === "Flight Tickets") {
+      window.location.href = "agent-flights.html";
       return;
     }
 
@@ -1464,7 +1464,6 @@ document.querySelectorAll("[data-service]").forEach(button => {
   });
 
 });
-
 /* CHECK USER LOGIN AND APPROVAL */
 
 onAuthStateChanged(auth, async user => {
