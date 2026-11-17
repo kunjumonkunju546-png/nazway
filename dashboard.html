@@ -1466,94 +1466,124 @@ document.querySelectorAll("[data-service]").forEach(button => {
 });
 /* CHECK USER LOGIN AND APPROVAL */
 
+function displayAgentDashboard(user, data) {
+
+  if (data.role === "admin") {
+    window.location.replace("admin.html");
+    return false;
+  }
+
+  if (data.role !== "agent") {
+    showError("Invalid Account Role", "Your account role is not recognized.");
+    return false;
+  }
+
+  if (data.status !== "approved") {
+    showError(
+      data.status === "pending" ? "Approval Pending" : "Account Not Approved",
+      "Your partner account is not approved. Please contact NAZYAN TRAVELS."
+    );
+    return false;
+  }
+
+  currentAgent = {
+    uid: user.uid,
+    name: data.name || "Agent",
+    email: data.email || user.email || "Not available",
+    phone: data.phone || "Not available"
+  };
+
+  document.getElementById("agentName").textContent = currentAgent.name;
+  document.getElementById("headerAgentName").textContent = currentAgent.name;
+  document.getElementById("statusBadge").textContent = "✓ APPROVED";
+
+  loadingBox.classList.add("hidden");
+  errorBox.classList.add("hidden");
+  dashboardContent.classList.remove("hidden");
+
+  return true;
+}
+
 onAuthStateChanged(auth, async user => {
 
-  // 1. Check Firebase Login Session
   if (!user) {
     showError(
       "Login Session Not Found",
-      "Dashboard could not find your active login session. Please return to the Home Page and login again."
+      "Your login session could not be verified. Please login again."
     );
     return;
   }
 
+  let cachedProfile = null;
+  let dashboardShown = false;
+
+  // STEP 1: Read the verified profile from this browser tab
+
+  try {
+    const saved = sessionStorage.getItem("nazway_agent_profile_v1");
+
+    if (saved) {
+      const parsed = JSON.parse(saved);
+
+      if (
+        parsed.uid === user.uid &&
+        parsed.role === "agent" &&
+        parsed.status === "approved"
+      ) {
+        cachedProfile = parsed;
+        dashboardShown = displayAgentDashboard(user, cachedProfile);
+      }
+    }
+  } catch (error) {
+    console.warn("Agent cache unavailable:", error);
+  }
+
+  // STEP 2: Verify the real profile from Firestore
+
   try {
 
-    // 2. Check Agent Profile
     const agentSnap = await getDoc(doc(db, "agents", user.uid));
 
     if (!agentSnap.exists()) {
-      showError(
-        "Agent Profile Not Found",
-        "Your Firebase login is active, but your Agent Profile was not found. Email: " + (user.email || "Not available")
-      );
+      sessionStorage.removeItem("nazway_agent_profile_v1");
+      showError("Agent Profile Not Found", "Your agent profile was not found.");
       return;
     }
 
     const data = agentSnap.data();
 
-    // 3. Admin Account Check
-    if (data.role === "admin") {
-      window.location.replace("admin.html");
+    if (!displayAgentDashboard(user, data)) {
+      sessionStorage.removeItem("nazway_agent_profile_v1");
       return;
     }
 
-    // 4. Agent Role Check
-    if (data.role !== "agent") {
-      showError(
-        "Invalid Account Role",
-        "Your account role is not recognized. Current role: " + (data.role || "Not available")
-      );
-      return;
-    }
+    // Update cache with the latest verified information
 
-    // 5. Approval Check
-    if (data.status !== "approved") {
-
-      showError(
-        data.status === "pending"
-          ? "Approval Pending"
-          : "Account Not Approved",
-
-        data.status === "pending"
-          ? "Your partner account is waiting for admin approval."
-          : "Your partner account has not been approved. Please contact NAZYAN TRAVELS."
-      );
-
-      return;
-    }
-
-    // 6. Load Agent Information
-    currentAgent = {
-      uid: user.uid,
-      name: data.name || "Agent",
-      email: data.email || user.email || "Not available",
-      phone: data.phone || "Not available"
-    };
-
-    document.getElementById("agentName").textContent =
-      currentAgent.name;
-
-    document.getElementById("headerAgentName").textContent =
-      currentAgent.name;
-
-    document.getElementById("statusBadge").textContent =
-      "✓ APPROVED";
-
-    // 7. Show Dashboard
-    loadingBox.classList.add("hidden");
-    errorBox.classList.add("hidden");
-    dashboardContent.classList.remove("hidden");
-
-  } catch(error) {
-
-    console.error("NAZWAY Dashboard Error:", error);
-
-    showError(
-      "Dashboard Verification Failed",
-      "Error Code: " + (error.code || "unknown") +
-      " | Error: " + error.message
+    sessionStorage.setItem(
+      "nazway_agent_profile_v1",
+      JSON.stringify({
+        uid: user.uid,
+        role: data.role,
+        status: data.status,
+        name: data.name || "Agent",
+        email: data.email || user.email || "Not available",
+        phone: data.phone || "Not available"
+      })
     );
+
+  } catch (error) {
+
+    console.error("NAZWAY Dashboard Verification Error:", error);
+
+    // Keep the already displayed dashboard if cached profile
+    // was verified for this same signed-in user.
+    if (!dashboardShown) {
+      showError(
+        "Dashboard Verification Failed",
+        "Error Code: " + (error.code || "unknown") +
+        " | Error: " + error.message
+      );
+    }
 
   }
 
