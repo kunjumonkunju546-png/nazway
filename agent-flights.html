@@ -575,10 +575,21 @@ onAuthStateChanged(auth, async user => {
       return;
     }
 
-    currentAgent = {
-      name: data.name || "Agent",
-      email: data.email || user.email || "Not available"
-    };
+  currentAgent = {
+  uid: user.uid,
+  name: data.name || "Agent",
+  email: data.email || user.email || "Not available",
+  phone: data.phone || "Not available"
+};
+
+sessionStorage.setItem("nazway_agent_profile_v1", JSON.stringify({
+  uid: user.uid,
+  role: data.role,
+  status: data.status,
+  name: currentAgent.name,
+  email: currentAgent.email,
+  phone: currentAgent.phone
+}));
     $("welcomeText").textContent = "Welcome, " + currentAgent.name +
       ". Submit a flight enquiry and track your booking requests.";
   } catch (error) {
