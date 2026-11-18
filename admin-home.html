@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#102f50">
+<title>NAZWAY Admin Home</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+body{font-family:Arial,sans-serif}
+.menu-card{
+ background:#172b43;border:1px solid #29435f;
+ border-radius:16px;padding:22px;
+ transition:.2s;display:block;text-decoration:none;color:white
+}
+.menu-card:active{transform:scale(.98)}
+.menu-card:hover{border-color:#c5a45b;background:#1c3552}
+.menu-icon{font-size:28px;margin-bottom:14px}
+.menu-title{font-size:16px;font-weight:700}
+.menu-desc{font-size:12px;color:#aab8c9;margin-top:7px}
+.disabled-card{opacity:.55;cursor:not-allowed}
+</style>
+</head>
+
+<body class="bg-slate-950 text-white min-h-screen">
+
+<header class="bg-slate-900 border-b border-slate-700">
+ <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+  <div>
+   <h1 class="text-2xl font-bold text-blue-400">NAZWAY</h1>
+   <p class="text-xs text-slate-400 mt-1">ADMIN CONTROL PANEL</p>
+  </div>
+  <button id="logoutBtn"
+   class="bg-red-600 px-4 py-2 rounded-lg text-sm">
+   Logout
+  </button>
+ </div>
+</header>
+
+<main class="max-w-5xl mx-auto px-4 py-7">
+
+ <div class="mb-7">
+  <p class="text-sm text-slate-400">Welcome back, Admin</p>
+  <h2 class="text-2xl font-bold mt-2">Admin Dashboard</h2>
+  <p class="text-sm text-slate-400 mt-2">
+   Manage your NAZWAY partner services.
+  </p>
+ </div>
+
+ <div id="loading" class="text-center py-10 text-slate-400">
+  Checking Admin Access...
+ </div>
+
+ <div id="errorBox"
+  class="hidden bg-red-900/30 border border-red-700 rounded-xl p-5 mb-5">
+  <p class="font-bold text-red-300">Access Denied</p>
+  <p id="errorMessage" class="text-sm text-red-200 mt-2"></p>
+  <button onclick="location.replace('index.html')"
+   class="mt-4 bg-blue-600 px-4 py-2 rounded-lg">
+   Back to Login
+  </button>
+ </div>
+
+ <section id="adminContent" class="hidden">
+
+  <h3 class="text-sm font-bold text-slate-400 uppercase mb-4">
+   Main Management
+  </h3>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+   <a href="admin.html#agents" class="menu-card">
+    <div class="menu-icon">👥</div>
+    <div class="menu-title">Agent Management</div>
+    <p class="menu-desc">
+     Manage agent applications, approvals and agent accounts.
+    </p>
+   </a>
+
+   <a href="admin.html#bookings" class="menu-card">
+    <div class="menu-icon">✈️</div>
+    <div class="menu-title">Flight Booking</div>
+    <p class="menu-desc">
+     View and manage flight enquiries and bookings.
+    </p>
+   </a>
+
+   <div class="menu-card disabled-card">
+    <div class="menu-icon">🕋</div>
+    <div class="menu-title">Umrah Booking</div>
+    <p class="menu-desc">Umrah enquiry and booking management.</p>
+    <p class="text-xs text-amber-400 mt-3">Coming Soon</p>
+   </div>
+
+   <div class="menu-card disabled-card">
+    <div class="menu-icon">🌍</div>
+    <div class="menu-title">Tour Packages</div>
+    <p class="menu-desc">Manage tour enquiries and packages.</p>
+    <p class="text-xs text-amber-400 mt-3">Coming Soon</p>
+   </div>
+
+   <div class="menu-card disabled-card">
+    <div class="menu-icon">📄</div>
+    <div class="menu-title">Visa Services</div>
+    <p class="menu-desc">Manage visa applications and services.</p>
+    <p class="text-xs text-amber-400 mt-3">Coming Soon</p>
+   </div>
+
+   <div class="menu-card disabled-card">
+    <div class="menu-icon">💰</div>
+    <div class="menu-title">Commission & Payments</div>
+    <p class="menu-desc">Manage agent commissions and payments.</p>
+    <p class="text-xs text-amber-400 mt-3">Coming Soon</p>
+   </div>
+
+  </div>
+
+  <div class="mt-8 bg-slate-900 border border-slate-700 rounded-xl p-4">
+   <p class="text-xs text-slate-400">OFFICIAL SUPPORT EMAIL</p>
+   <p class="font-semibold mt-2">nazyantravels@gmail.com</p>
+  </div>
+
+ </section>
+
+ <footer class="text-center text-slate-600 text-xs py-10">
+  NAZYAN TRAVELS · NAZWAY ADMIN PORTAL
+ </footer>
+
+</main>
+
+<script type="module">
+import {initializeApp}
+ from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+
+import {
+ getAuth,onAuthStateChanged,signOut
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+import {
+ getFirestore,doc,getDoc
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig={
+ apiKey:"AIzaSyCCrmQBOFUNoUf6xv1q48MYhbOHL22JJig",
+ authDomain:"nazway-7d9f4.firebaseapp.com",
+ projectId:"nazway-7d9f4",
+ storageBucket:"nazway-7d9f4.firebasestorage.app",
+ messagingSenderId:"993042222919",
+ appId:"1:993042222919:web:3c0fab205ede2443f38662",
+ measurementId:"G-1NGSFBVMX6"
+};
+
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
+
+const loading=document.getElementById("loading");
+const content=document.getElementById("adminContent");
+const errorBox=document.getElementById("errorBox");
+
+function showError(message){
+ loading.classList.add("hidden");
+ content.classList.add("hidden");
+ errorBox.classList.remove("hidden");
+ document.getElementById("errorMessage").textContent=message;
+}
+
+onAuthStateChanged(auth,async user=>{
+ if(!user){
+  location.replace("index.html");
+  return;
+ }
+
+ try{
+  const snap=await getDoc(doc(db,"agents",user.uid));
+
+  if(!snap.exists()){
+   showError("Admin profile not found.");
+   return;
+  }
+
+  const data=snap.data();
+
+  if(data.role!=="admin"||data.status!=="approved"){
+   showError("You do not have Admin permission.");
+   return;
+  }
+
+  loading.classList.add("hidden");
+  content.classList.remove("hidden");
+
+ }catch(error){
+  console.error(error);
+  showError("Unable to verify Admin access. Please refresh.");
+ }
+});
+
+document.getElementById("logoutBtn").addEventListener("click",async()=>{
+ if(!confirm("Are you sure you want to logout?"))return;
+
+ try{
+  await signOut(auth);
+  location.replace("index.html");
+ }catch(error){
+  alert("Logout failed. Please try again.");
+ }
+});
+</script>
+
+</body>
+</html>
