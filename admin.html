@@ -573,7 +573,13 @@ statusUpdatedAt:new Date().toISOString()
 
 alert("Agent status updated successfully!");
 
-await loadAgents();
+const requestedSection = location.hash.replace("#","");
+
+if(requestedSection === "bookings"){
+  window.showSection("bookings");
+}else{
+  window.showSection("agents");
+}
 
 }catch(error){
 
