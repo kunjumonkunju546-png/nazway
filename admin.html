@@ -147,13 +147,14 @@ getAuth,onAuthStateChanged,signOut
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 import {
-getFirestore,
-doc,
-getDoc,
-getDocs,
-collection,
-updateDoc,
-writeBatch
+ getFirestore,
+ doc,
+ getDoc,
+ getDocs,
+ collection,
+ addDoc,
+ updateDoc,
+ writeBatch
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig={
@@ -886,7 +887,83 @@ ${isExpanded?`
 <p class="text-xs text-slate-400 mb-1">Additional Requirements</p>
 <p class="text-sm whitespace-pre-wrap">${escapeHTML(booking.requirements||"None")}</p>
 </div>
+<!-- FARE OPTIONS PANEL -->
+<div class="mt-5 border border-amber-600/40 rounded-xl p-4 bg-slate-800">
 
+  <h3 class="text-lg font-bold text-amber-400 mb-2">
+    Flight Fare Options
+  </h3>
+
+  <p class="text-xs text-slate-400 mb-4">
+    Add one or more flight options for this booking.
+  </p>
+
+  <form class="fareOptionForm space-y-3"
+        data-booking-id="${escapeHTML(booking.id)}">
+
+    <input name="airline" required maxlength="100"
+      placeholder="Airline Name (Qatar Airways)"
+      class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-sm">
+
+    <input name="flightNumber" maxlength="30"
+      placeholder="Flight Number (QR 578)"
+      class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-sm">
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <input name="departureTime" required maxlength="50"
+        placeholder="Departure Time"
+        class="bg-slate-900 border border-slate-600 rounded-lg p-3 text-sm">
+
+      <input name="arrivalTime" required maxlength="50"
+        placeholder="Arrival Time"
+        class="bg-slate-900 border border-slate-600 rounded-lg p-3 text-sm">
+    </div>
+
+    <input name="transit" required maxlength="100"
+      placeholder="Direct / 1 Stop / Transit Details"
+      class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-sm">
+
+    <input name="baggage" required maxlength="200"
+      placeholder="Baggage (30 KG + 7 KG)"
+      class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-sm">
+
+    <div class="grid grid-cols-2 gap-3">
+      <input name="fare" type="number" min="0.01" step="0.01"
+        required placeholder="Total Fare"
+        class="bg-slate-900 border border-slate-600 rounded-lg p-3 text-sm">
+
+      <select name="currency" required
+        class="bg-slate-900 border border-slate-600 rounded-lg p-3 text-sm">
+        <option value="QAR">QAR</option>
+        <option value="INR">INR</option>
+        <option value="USD">USD</option>
+      </select>
+    </div>
+
+    <textarea name="conditions" maxlength="1000"
+      placeholder="Fare Conditions / Refund / Changes"
+      class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-sm"></textarea>
+
+    <button type="submit"
+      class="bg-amber-600 hover:bg-amber-500 text-white font-bold px-5 py-3 rounded-lg text-sm">
+      + Add Fare Option
+    </button>
+
+    <p class="fareFormMessage text-xs text-slate-400"></p>
+
+  </form>
+
+  <div class="mt-5 border-t border-slate-600 pt-4">
+    <h4 class="font-semibold text-sm mb-3">Added Fare Options</h4>
+
+    <div class="fareOptionList text-sm text-slate-400"
+         data-booking-id="${escapeHTML(booking.id)}">
+      Loading fare options...
+    </div>
+  </div>
+
+</div>
+<!-- END FARE OPTIONS PANEL -->
 
 </div>
 
@@ -895,11 +972,213 @@ ${isExpanded?`
 </div>`;
 
 }).join("");
-
+connectFareOptionForms();
 renderBookingPagination(filtered.length);
 
 }
+// ======================================
+// ADMIN FARE OPTIONS
+// ======================================
 
+async function loadFareOptions(bookingId) {
+
+  const container = document.querySelector(
+    `.fareOptionList[data-booking-id="${bookingId}"]`
+  );
+
+  if (!container) return;
+
+  container.textContent = "Loading fare options...";
+
+  try {
+
+    const fareRef = collection(
+      db,
+      "flightBookings",
+      bookingId,
+      "fareOptions"
+    );
+
+    const snapshot = await getDocs(fareRef);
+
+    if (snapshot.empty) {
+      container.innerHTML =
+        '<p class="text-slate-400">No fare options added yet.</p>';
+      return;
+    }
+
+    const options = snapshot.docs.map(item => ({
+      id: item.id,
+      ...item.data()
+    }));
+
+    options.sort((a, b) =>
+      String(a.createdAt || "").localeCompare(
+        String(b.createdAt || "")
+      )
+    );
+
+    container.innerHTML = options.map((option, index) => `
+      <div class="border border-slate-600 rounded-lg p-3 mb-3">
+
+        <div class="flex justify-between gap-3">
+          <h5 class="font-bold text-amber-400">
+            Option ${index + 1}: ${escapeHTML(option.airline)}
+          </h5>
+
+          <span class="text-green-400 font-bold">
+            ${escapeHTML(option.currency)} ${escapeHTML(option.fare)}
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3 text-xs">
+
+          <p>Flight: ${escapeHTML(option.flightNumber || "Not specified")}</p>
+
+          <p>Transit: ${escapeHTML(option.transit)}</p>
+
+          <p>Departure: ${escapeHTML(option.departureTime)}</p>
+
+          <p>Arrival: ${escapeHTML(option.arrivalTime)}</p>
+
+          <p class="sm:col-span-2">
+            Baggage: ${escapeHTML(option.baggage)}
+          </p>
+
+        </div>
+
+        <div class="mt-3 bg-slate-900 rounded-lg p-3">
+          <p class="text-xs text-slate-400 mb-1">Fare Conditions</p>
+          <p class="text-sm whitespace-pre-wrap">
+            ${escapeHTML(option.conditions || "Not specified")}
+          </p>
+        </div>
+
+      </div>
+    `).join("");
+
+  } catch (error) {
+
+    console.error("Fare options loading error:", error);
+
+    container.textContent =
+      "Unable to load fare options. Check Firestore Rules.";
+
+  }
+}
+
+
+// SAVE NEW FARE OPTION
+async function saveFareOption(form) {
+
+  if (!adminAccess) {
+    alert("Admin access required.");
+    return;
+  }
+
+  const bookingId = form.dataset.bookingId;
+  const message = form.querySelector(".fareFormMessage");
+  const button = form.querySelector('button[type="submit"]');
+
+  const formData = new FormData(form);
+
+  const airline = String(formData.get("airline") || "").trim();
+  const flightNumber = String(formData.get("flightNumber") || "").trim();
+  const departureTime = String(formData.get("departureTime") || "").trim();
+  const arrivalTime = String(formData.get("arrivalTime") || "").trim();
+  const transit = String(formData.get("transit") || "").trim();
+  const baggage = String(formData.get("baggage") || "").trim();
+  const fare = Number(formData.get("fare"));
+  const currency = String(formData.get("currency") || "");
+  const conditions = String(formData.get("conditions") || "").trim();
+
+  if (!bookingId || !airline || !departureTime ||
+      !arrivalTime || !transit || !baggage ||
+      !Number.isFinite(fare) || fare <= 0) {
+
+    alert("Please enter all required fare details.");
+    return;
+  }
+
+  if (!["QAR", "INR", "USD"].includes(currency)) {
+    alert("Invalid currency.");
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Saving...";
+  message.textContent = "";
+
+  try {
+
+    const booking = allBookings.find(item => item.id === bookingId);
+
+    if (!booking) {
+      throw new Error("Booking not found.");
+    }
+
+    await addDoc(
+      collection(db, "flightBookings", bookingId, "fareOptions"),
+      {
+        airline,
+        flightNumber,
+        departureTime,
+        arrivalTime,
+        transit,
+        baggage,
+        fare,
+        currency,
+        conditions,
+        createdAt: new Date().toISOString(),
+        createdBy: auth.currentUser.uid
+      }
+    );
+
+    alert("Fare option added successfully.");
+
+    form.reset();
+
+    await loadFareOptions(bookingId);
+
+  } catch (error) {
+
+    console.error("Save fare option error:", error);
+
+    alert(
+      "Unable to save fare option.\n\n" + error.message
+    );
+
+  } finally {
+
+    button.disabled = false;
+    button.textContent = "+ Add Fare Option";
+
+  }
+}
+
+
+// CONNECT FARE FORMS AFTER BOOKING LIST RENDER
+function connectFareOptionForms() {
+
+  document.querySelectorAll(".fareOptionForm").forEach(form => {
+
+    if (form.dataset.connected === "true") return;
+
+    form.dataset.connected = "true";
+
+    form.addEventListener("submit", async event => {
+
+      event.preventDefault();
+
+      await saveFareOption(form);
+
+    });
+
+    loadFareOptions(form.dataset.bookingId);
+
+  });
+
+}
 window.toggleBookingDetails=function(id){
 
 if(expandedBookings.has(id)){
