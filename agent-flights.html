@@ -525,6 +525,7 @@ function showBookingDetails(booking) {
       ${detailLine("Departure", formatDate(booking.departureDate))}
       ${detailLine("Return", booking.tripType === "roundtrip" ? formatDate(booking.returnDate) : "Not applicable")}
     </div>
+
     <div class="detail-box">
       <h3>Passenger Details</h3>
       ${detailLine("Adults", booking.adults)}
@@ -532,12 +533,25 @@ function showBookingDetails(booking) {
       ${detailLine("Infants", booking.infants)}
       ${detailLine("Total Passengers", passengerTotal)}
     </div>
+
     <div class="detail-box">
       <h3>Enquiry Status</h3>
       ${detailLine("Current Status", statusLabel(booking.status))}
       ${detailLine("Submitted On", formatDateTime(booking.createdAt))}
       ${detailLine("Requirements", booking.requirements || "No additional requirements")}
-    </div>`;
+    </div>
+
+    <div class="detail-box" style="border-color:#16845b">
+      <h3 style="color:#16845b">Admin Communication</h3>
+      <p style="font-size:12px;color:#718096;line-height:1.6;margin-bottom:12px">
+        Contact NAZYAN TRAVELS directly regarding this flight booking.
+      </p>
+      <a href="agent-flight-chat.html?id=${encodeURIComponent(booking.id)}"
+         style="display:block;text-align:center;background:#16845b;color:white;padding:13px;border-radius:9px;text-decoration:none;font-size:13px;font-weight:bold">
+        💬 Chat with Admin
+      </a>
+    </div>
+  `;
 }
 
 onAuthStateChanged(auth, async user => {
